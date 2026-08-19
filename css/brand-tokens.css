@@ -1,0 +1,203 @@
+/* ==========================================================================
+   SAGE CUSTOM BRAND TYPEFACES
+   ========================================================================== */
+
+@font-face {
+  font-family: "Sage Headline";
+  src: url("../fonts/SageHeadline-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-RegularItalic.otf") format("opentype");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-MediumItalic.otf") format("opentype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-BoldItalic.otf") format("opentype");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage Text";
+  src: url("../fonts/SageText-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage UI";
+  src: url("../fonts/SageUI-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage UI";
+  src: url("../fonts/SageUI-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Sage UI";
+  src: url("../fonts/SageUI-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* --- Primary Brand Palette --- */
+  --sage-green-brilliant: #00D639; /* The protagonist */
+  --sage-black: #000000;          /* Hero backdrop stage */
+  --sage-white: #FFFFFF;          /* Information background & crisp contrast */
+
+  /* --- Extended Hero Green Palette --- */
+  --sage-hero-h1: #00AF2D;
+  --sage-hero-h2: #008A21; /* Text and design elements on white */
+  --sage-hero-h3: #006716; /* Hyperlinks on white */
+  --sage-hero-h4: #00460C;
+
+  /* --- Extended Cool Palette: Jade --- */
+  --sage-jade-10: #001B0F;
+  --sage-jade-20: #00361E;
+  --sage-jade-30: #00522C;
+  --sage-jade-40: #006D3E;
+  --sage-jade-50: #00884A;
+  --sage-jade-60: #00A65C; /* Core Jade */
+  --sage-jade-70: #00CA71;
+  --sage-jade-80: #44ED90;
+  --sage-jade-90: #8FF8B7;
+  --sage-jade-95: #C4FCD8;
+  --sage-jade-99: #F2FEF7;
+
+  /* --- Extended Cool Palette: Teal --- */
+  --sage-teal-10: #001919;
+  --sage-teal-20: #003231;
+  --sage-teal-30: #004A4A;
+  --sage-teal-40: #006362; /* Core Teal */
+  --sage-teal-50: #007776;
+  --sage-teal-60: #009494;
+  --sage-teal-70: #2EB2B1;
+  --sage-teal-80: #5BCFCD;
+  --sage-teal-90: #89EDEA;
+  --sage-teal-95: #C3FAF8;
+  --sage-teal-99: #F4FEFE;
+
+  /* --- Extended Cool Palette: Navy --- */
+  --sage-navy-10: #001520;
+  --sage-navy-20: #00293F; /* Core Navy */
+  --sage-navy-30: #054262;
+  --sage-navy-40: #095B84;
+  --sage-navy-50: #0E74A7;
+  --sage-navy-60: #1D8CC3;
+  --sage-navy-70: #41A5D1;
+  --sage-navy-80: #65BEDF;
+  --sage-navy-90: #89D7ED;
+  --sage-navy-95: #CAF1FC;
+  --sage-navy-99: #F4FCFE;
+
+  /* --- Extended Warm Palette: Amber & Terra & Cherry --- */
+  --sage-amber-60: #E98709;
+  --sage-amber-80: #F5CE55;
+  --sage-amber-95: #FFF0C3;
+  --sage-terra-40: #A13829;
+  --sage-terra-60: #E0583E;
+  --sage-cherry-20: #4A1828;
+  --sage-cherry-60: #D85579;
+
+  /* --- Neutral Dark Surfaces --- */
+  --sage-surface-hero: #050706;
+  --sage-surface-card: #0B110D;
+  --sage-surface-card-border: rgba(0, 214, 57, 0.15);
+  --sage-surface-card-hover-border: rgba(0, 214, 57, 0.45);
+  --sage-surface-light: #F9FBFA;
+  --sage-surface-light-card: #FFFFFF;
+  --sage-surface-light-border: #E2ECE6;
+
+  /* --- Text Colors --- */
+  --text-hero-primary: #FFFFFF;
+  --text-hero-secondary: #9EBAA8;
+  --text-hero-muted: #5B7565;
+  --text-light-primary: #001B0F;
+  --text-light-secondary: #3D5A4A;
+  --text-light-muted: #728D7E;
+
+  /* --- Typography System (Official Sage Typefaces + Fallbacks) --- */
+  --font-headline: "Sage Headline", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Sage Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-ui: "Sage UI", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "Sage UI", "JetBrains Mono", monospace;
+
+  /* 1:1 display ratio, 1:1.2 text ratio */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-loose: 0.05em;
+
+  /* --- Glows & Shadows --- */
+  --glow-brilliant: 0 0 25px rgba(0, 214, 57, 0.35);
+  --glow-brilliant-intense: 0 0 45px rgba(0, 214, 57, 0.6);
+  --glow-subtle: 0 0 15px rgba(0, 214, 57, 0.15);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover: 0 15px 40px rgba(0, 214, 57, 0.15);
+
+  /* --- Transitions & Radius --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  --transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}

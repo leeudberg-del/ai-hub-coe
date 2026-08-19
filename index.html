@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sage AI Hub</title>
+  <meta name="description" content="An internal space to submit AI ideas, view active projects, and learn practical prompting skills.">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/brand-tokens.css">
+  <link rel="stylesheet" href="css/particles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/gif" href="logo2.gif">
+</head>
+<body>
+
+  <!-- Interactive Cursor Aura Overlay -->
+  <div class="cursor-aura" aria-hidden="true"></div>
+
+  <!-- ==========================================================================
+       NAVIGATION BAR
+       ========================================================================== -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="brand-wrapper" aria-label="Sage AI Hub Home">
+        <img src="sage_symbol.png" alt="Sage" class="brand-logo-img">
+        <span class="brand-badge">COE AI HUB</span>
+      </a>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#hero" class="nav-link active">Overview</a></li>
+          <li><a href="#ideas-section" class="nav-link">Ideas</a></li>
+          <li><a href="#roadmap-section" class="nav-link">Active Projects</a></li>
+          <li class="nav-indicator" id="nav-indicator"></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-primary btn-sm" id="btn-open-submit-modal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Submit an idea
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==========================================================================
+         HERO STAGE (Cursor Interactive Particle Engine)
+         ========================================================================== -->
+    <section class="hero-stage" id="hero">
+      <div class="canvas-container">
+        <canvas id="particle-canvas"></canvas>
+      </div>
+
+      <div class="container hero-content">
+        <h1 class="hero-title">
+          Share ideas.<br>
+          Remove complexity.<br>
+          <span class="text-gradient">Work smarter.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          An internal hub for Customer Service and Customer Operations across UKI, North America, France, CEU, Iberia, and AME to submit automation ideas and track tools being built.
+        </p>
+
+        <div class="hero-cta-group">
+          <button class="btn btn-primary btn-lg" id="btn-hero-submit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M2 12h20"/></svg>
+            Submit an idea
+          </button>
+          <a href="#roadmap-section" class="btn btn-outline btn-lg">
+            View active projects
+          </a>
+        </div>
+
+        <!-- Metrics bar -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-value" id="stat-active-projects">4<span></span></div>
+            <div class="metric-label">Projects in development</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="stat-hours-saved">1,240<span>h</span></div>
+            <div class="metric-label">Estimated hours saved monthly</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="stat-total-ideas">24<span></span></div>
+            <div class="metric-label">Ideas submitted across geos</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value" id="stat-deployed">2<span></span></div>
+            <div class="metric-label">Tools live in production</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         IDEAS & SUBMISSION SECTION
+         ========================================================================== -->
+    <section class="section section-dark" id="ideas-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <span class="section-tag">Ideas</span>
+            <h2 class="section-title">Submitted ideas</h2>
+            <p class="section-subtitle">Browse ideas from Customer Service and Operations teams across regions, vote on what would help most, or submit your own.</p>
+          </div>
+          <div class="ideas-header-action">
+            <div class="search-input-wrapper">
+              <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" class="search-input" id="idea-search" placeholder="Search ideas, topics, or agents...">
+            </div>
+            <div class="filter-tabs">
+              <button class="filter-btn region-filter-tab active" data-region="all">All Regions</button>
+              <button class="filter-btn region-filter-tab" data-region="UKI">UKI</button>
+              <button class="filter-btn region-filter-tab" data-region="North America">North America</button>
+              <button class="filter-btn region-filter-tab" data-region="France">France</button>
+              <button class="filter-btn region-filter-tab" data-region="CEU">CEU</button>
+              <button class="filter-btn region-filter-tab" data-region="Iberia">Iberia</button>
+              <button class="filter-btn region-filter-tab" data-region="AME">AME</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ideas-grid" id="ideas-grid">
+          <!-- Dynamic Idea Cards rendered via app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         ACTIVE PROJECTS & ROADMAP
+         ========================================================================== -->
+    <section class="section section-dark" id="roadmap-section" style="background-color: #030504; border-top: 1px solid rgba(0, 214, 57, 0.08);">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <span class="section-tag">Status</span>
+            <h2 class="section-title">What we are working on</h2>
+            <p class="section-subtitle">Track the progress of tools and automations currently in development for Customer Service and Operations.</p>
+          </div>
+        </div>
+
+        <div class="roadmap-board" id="roadmap-board">
+          <!-- Dynamic Kanban Columns rendered via app.js -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       SUBMIT IDEA MODAL WINDOW
+       ========================================================================== -->
+  <div class="modal-backdrop" id="submit-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div>
+          <span class="category-tag tag-automation" style="margin-bottom: 6px; display: inline-block;">CUSTOMER SERVICE & OPS</span>
+          <h2 id="modal-title" style="font-size: 1.4rem;">Submit an idea</h2>
+        </div>
+        <button class="modal-close-btn" id="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <form id="submit-idea-form">
+
+        <!-- Step 1: Title -->
+        <div class="form-group">
+          <div class="form-step-label"><span class="form-step-num">1</span><label class="form-label" for="form-idea-title">Title</label></div>
+          <input type="text" id="form-idea-title" class="form-input" placeholder="A short name for the idea — make it descriptive if possible!" required>
+        </div>
+
+        <!-- Step 2: Intent picklist -->
+        <div class="form-group">
+          <div class="form-step-label"><span class="form-step-num">2</span><label class="form-label">What are you trying to do?</label></div>
+          <div class="pill-group" id="pill-intent" role="group" aria-label="Select intent">
+            <button type="button" class="pill-option" data-group="intent" data-value="Solve a problem">Solve a problem</button>
+            <button type="button" class="pill-option" data-group="intent" data-value="Improve a process">Improve a process</button>
+            <button type="button" class="pill-option" data-group="intent" data-value="Automate a task">Automate a task</button>
+            <button type="button" class="pill-option" data-group="intent" data-value="Create a new AI capability">Create a new AI capability</button>
+            <button type="button" class="pill-option" data-group="intent" data-value="Explore an idea">Explore an idea</button>
+          </div>
+          <input type="hidden" id="form-idea-intent" name="intent">
+        </div>
+
+        <!-- Step 3: Description -->
+        <div class="form-group">
+          <div class="form-step-label"><span class="form-step-num">3</span><label class="form-label" for="form-idea-desc">Description</label></div>
+          <textarea id="form-idea-desc" class="form-textarea" placeholder="No format required. Describe it in your own words — why are you submitting this?" required></textarea>
+        </div>
+
+        <!-- Step 4: Expected benefit picklist (multi-select) -->
+        <div class="form-group">
+          <div class="form-step-label"><span class="form-step-num">4</span><label class="form-label">Expected benefit</label></div>
+          <div class="pill-group" id="pill-benefit" role="group" aria-label="Select expected benefit">
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Save time">Save time</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve colleague experience">Improve colleague experience</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Better insights">Better insights</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve customer experience">Improve customer experience</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Increase revenue">Increase revenue</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Other">Other</button>
+          </div>
+          <input type="hidden" id="form-idea-benefit" name="benefit">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px;">
+          <button type="button" class="btn btn-outline" id="modal-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit idea</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <img src="sage_symbol.png" alt="Sage Logo" style="height: 22px; width: auto;">
+        <span class="mono" style="font-size: 0.8rem; color: var(--sage-green-brilliant);">Sage AI Hub</span>
+      </div>
+
+      <ul class="footer-links">
+        <li><a href="#hero">Overview</a></li>
+        <li><a href="#ideas-section">Ideas</a></li>
+        <li><a href="#roadmap-section">Active Projects</a></li>
+      </ul>
+
+      <p class="mono" style="font-size: 0.75rem; color: var(--text-hero-muted);">
+        Sage Brand Typography &bull; Brilliant Green #00D639
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/mockData.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
