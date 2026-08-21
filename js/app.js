@@ -115,24 +115,57 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elDeployed) elDeployed.innerHTML = `${stats.deployedCount}<span></span>`;
   }
 
-  // --- IDEAS GRID RENDERING (WITH REGIONAL BADGES) ---
+  // --- IDEAS GRID RENDERING (WITH DYNAMODB LIVE DATA & STATUS BADGES) ---
+  function getStatusBadgeClass(status) {
+    const s = (status || '').toLowerCase();
+    if (s.includes('done') || s.includes('live')) return 'status-done';
+    if (s.includes('sprint') || s.includes('dev')) return 'status-sprint';
+    if (s.includes('discovery') || s.includes('story')) return 'status-discovery';
+    if (s.includes('triage')) return 'status-triage';
+    if (s.includes('rejected') || s.includes('duplicate')) return 'status-rejected';
+    return 'status-submitted';
+  }
+
+  function formatDate(isoStr) {
+    if (!isoStr) return '';
+    try {
+      const date = new Date(isoStr);
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  }
+
   function renderIdeas() {
     if (!ideasGrid) return;
+
+    if (store.isLoading && store.ideas.length === 0) {
+      ideasGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: rgba(11,17,13,0.5); border: 1px dashed rgba(0,214,57,0.2); border-radius: 12px;">
+          <div style="display: inline-block; width: 24px; height: 24px; border: 2px solid rgba(0,214,57,0.2); border-top-color: var(--sage-green-brilliant); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;"></div>
+          <p style="color: var(--text-hero-secondary); font-size: 0.95rem;">Loading submitted ideas...</p>
+        </div>
+      `;
+      return;
+    }
     
     let filtered = store.ideas.filter(idea => {
-      const matchRegion = currentRegionFilter === 'all' || (idea.region && idea.region.toLowerCase() === currentRegionFilter.toLowerCase());
-      const matchSearch = idea.title.toLowerCase().includes(searchQuery) ||
-                          idea.description.toLowerCase().includes(searchQuery) ||
-                          (idea.region && idea.region.toLowerCase().includes(searchQuery)) ||
-                          idea.dept.toLowerCase().includes(searchQuery);
+      const matchRegion = currentRegionFilter === 'all' || 
+                          (idea.region && idea.region.toLowerCase() === currentRegionFilter.toLowerCase());
+      const matchSearch = (idea.title || '').toLowerCase().includes(searchQuery) ||
+                          (idea.description || '').toLowerCase().includes(searchQuery) ||
+                          (idea.type || '').toLowerCase().includes(searchQuery) ||
+                          (idea.benefit || '').toLowerCase().includes(searchQuery) ||
+                          (idea.author || '').toLowerCase().includes(searchQuery) ||
+                          (idea.status || '').toLowerCase().includes(searchQuery);
       return matchRegion && matchSearch;
     });
 
     if (filtered.length === 0) {
       ideasGrid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align: center; padding: 48px; background: rgba(11,17,13,0.5); border: 1px dashed rgba(0,214,57,0.2); border-radius: 12px;">
-          <p style="color: var(--text-hero-secondary); font-size: 1.1rem; margin-bottom: 12px;">No customer service ideas found for this region.</p>
-          <button class="btn btn-outline-green btn-sm" id="btn-reset-filters">Show all regions</button>
+          <p style="color: var(--text-hero-secondary); font-size: 1.1rem; margin-bottom: 12px;">No customer service ideas found.</p>
+          <button class="btn btn-outline-green btn-sm" id="btn-reset-filters">Reset filters</button>
         </div>
       `;
       const resetBtn = document.getElementById('btn-reset-filters');
@@ -150,33 +183,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ideasGrid.innerHTML = filtered.map(idea => {
       const hasVoted = store.hasVoted(idea.id);
+      const statusBadge = idea.status ? `
+        <span class="idea-status-badge ${getStatusBadgeClass(idea.status)}">${escapeHTML(idea.status)}</span>
+      ` : '';
 
       return `
         <article class="idea-card">
           <div>
             <div class="idea-card-header">
-              <span class="category-tag tag-automation">${escapeHTML(idea.categoryLabel)}</span>
-              <span class="region-badge">${escapeHTML(idea.region || 'Global')}</span>
+              <span class="category-tag tag-${idea.category || 'automation'}">${escapeHTML(idea.categoryLabel || idea.type || 'Idea')}</span>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                ${statusBadge}
+                ${idea.region ? `<span class="region-badge">${escapeHTML(idea.region)}</span>` : ''}
+              </div>
             </div>
             <h3 class="idea-title">${escapeHTML(idea.title)}</h3>
             <p class="idea-desc">${escapeHTML(idea.description)}</p>
+            ${idea.impact || idea.benefit ? `
             <div class="idea-impact-banner">
-              <strong>Impact:</strong> ${escapeHTML(idea.impact)}
+              <strong>Impact / Benefit:</strong> ${escapeHTML(idea.benefit || idea.impact)}
             </div>
+            ` : ''}
           </div>
           <div class="idea-card-footer">
             <div class="idea-author">
               <div class="author-avatar">${getInitials(idea.author)}</div>
               <div>
                 <div style="font-weight: 500; color: #FFFFFF;">${escapeHTML(idea.author)}</div>
-                <div style="font-size: 0.72rem; color: var(--text-hero-muted);">${escapeHTML(idea.dept)}</div>
+                <div style="font-size: 0.72rem; color: var(--text-hero-muted);">${formatDate(idea.submittedAt)}</div>
               </div>
             </div>
             <button class="upvote-btn ${hasVoted ? 'voted' : ''}" data-id="${idea.id}" aria-label="Upvote idea">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
-              <span>${idea.upvotes}</span>
+              <span>${idea.upvotes || 0}</span>
             </button>
           </div>
         </article>
@@ -353,6 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
           }),
         });
         if (!res.ok) throw new Error('API error');
+        
+        // Refresh store with newest submissions from API
+        await store.fetchIdeas();
       } catch (err) {
         showToast("Submission failed — please try again.");
         return;
@@ -401,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getInitials(name) {
     if (!name) return "CS";
-    const parts = name.split(' ');
+    const parts = name.replace(/,/g, '').trim().split(/\s+/);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.slice(0, 2).toUpperCase();
   }
@@ -416,12 +460,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Global subscriptions
   store.subscribe(() => {
     updateStats();
+    renderIdeas();
   });
 
   // Initial Boot
   updateStats();
   renderIdeas();
   renderRoadmap();
+  store.fetchIdeas();
 
   // Initialize Nav indicator position
   setTimeout(() => {

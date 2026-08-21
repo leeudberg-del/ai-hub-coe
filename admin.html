@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard &bull; Sage AI Hub</title>
+  <meta name="description" content="Admin view to manage, triage, and update the pipeline status of submitted AI ideas.">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/brand-tokens.css">
+  <link rel="stylesheet" href="css/particles.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/gif" href="logo2.gif">
+  
+  <style>
+    .admin-container {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 120px 24px 80px;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .admin-stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .admin-stat-card {
+      background: var(--sage-surface-card);
+      border: 1px solid var(--sage-surface-card-border);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+    }
+
+    .admin-stat-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      font-family: var(--font-headline);
+    }
+
+    .admin-stat-label {
+      font-size: 0.75rem;
+      color: var(--text-hero-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 4px;
+    }
+
+    /* Admin Table Styles */
+    .admin-table-wrapper {
+      background: var(--sage-surface-card);
+      border: 1px solid var(--sage-surface-card-border);
+      border-radius: var(--radius-md);
+      overflow-x: auto;
+      box-shadow: var(--shadow-card);
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .admin-table th {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 14px 18px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-hero-secondary);
+      border-bottom: 1px solid var(--sage-surface-card-border);
+      white-space: nowrap;
+    }
+
+    .admin-table td {
+      padding: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: #FFFFFF;
+      vertical-align: top;
+    }
+
+    .admin-table tr:hover td {
+      background: rgba(0, 214, 57, 0.02);
+    }
+
+    .admin-status-select {
+      background: rgba(11, 17, 13, 0.9);
+      border: 1px solid rgba(0, 214, 57, 0.3);
+      color: #FFFFFF;
+      padding: 6px 12px;
+      border-radius: var(--radius-xs);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .admin-status-select:focus {
+      border-color: var(--sage-green-brilliant);
+      box-shadow: 0 0 10px rgba(0, 214, 57, 0.3);
+    }
+
+    .admin-status-select:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .admin-title-cell {
+      font-weight: 600;
+      color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+
+    .admin-desc-cell {
+      font-size: 0.8rem;
+      color: var(--text-hero-secondary);
+      max-width: 380px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .admin-user-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .admin-user-name {
+      font-weight: 500;
+      color: #FFFFFF;
+    }
+
+    .admin-user-email {
+      font-size: 0.72rem;
+      color: var(--text-hero-muted);
+    }
+
+    .access-denied-box {
+      text-align: center;
+      padding: 80px 24px;
+      background: var(--sage-surface-card);
+      border: 1px solid var(--sage-surface-card-border);
+      border-radius: var(--radius-md);
+      max-width: 600px;
+      margin: 80px auto;
+    }
+  </style>
+
+  <script src="js/msal-browser.min.js"></script>
+  <script src="js/config.js"></script>
+</head>
+<body>
+
+  <!-- Interactive Cursor Aura Overlay -->
+  <div class="cursor-aura" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-wrapper" aria-label="Sage AI Hub Home">
+        <img src="sage_symbol.png" alt="Sage" class="brand-logo-img">
+        <span class="brand-badge">CSO AI HUB &bull; ADMIN</span>
+      </a>
+
+      <nav aria-label="Main Navigation">
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link">&larr; Back to Hub</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions"></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="admin-container" id="admin-view">
+      <div id="auth-loading-state" style="text-align: center; padding: 100px 0;">
+        <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid rgba(0,214,57,0.2); border-top-color: var(--sage-green-brilliant); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
+        <p style="color: var(--text-hero-secondary);">Authenticating admin session...</p>
+      </div>
+
+      <div id="admin-content" style="display: none;">
+        <div class="admin-header">
+          <div>
+            <span class="section-tag">Management Console</span>
+            <h1 class="section-title" style="font-size: 2.2rem;">Pipeline Triage &amp; Status</h1>
+            <p class="section-subtitle">Review incoming submissions from across regions, update pipeline stages, and track development progression.</p>
+          </div>
+
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="btn btn-outline btn-sm" id="btn-refresh-admin">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric Strips -->
+        <div class="admin-stats-strip">
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-total">0</div>
+            <div class="admin-stat-label">Total Submissions</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-submitted" style="color: #E0E0E0;">0</div>
+            <div class="admin-stat-label">Submitted</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-triage" style="color: #FFA940;">0</div>
+            <div class="admin-stat-label">In Triage</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-discovery" style="color: #5CDBD3;">0</div>
+            <div class="admin-stat-label">Discovery / Story</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-sprint" style="color: #D3ADF7;">0</div>
+            <div class="admin-stat-label">In Sprint</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-val" id="count-done" style="color: var(--sage-green-brilliant);">0</div>
+            <div class="admin-stat-label">Completed / Done</div>
+          </div>
+        </div>
+
+        <!-- Submissions Table -->
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Submitted</th>
+                <th>Title &amp; Description</th>
+                <th>Category / Type</th>
+                <th>Benefit</th>
+                <th>Submitted By</th>
+                <th>Pipeline Status</th>
+              </tr>
+            </thead>
+            <tbody id="admin-table-body">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Unauthorized State -->
+      <div id="admin-unauthorized" style="display: none;" class="access-denied-box">
+        <h2 style="color: #FF7875; margin-bottom: 12px;">Admin Access Required</h2>
+        <p style="color: var(--text-hero-secondary); margin-bottom: 24px;">Please sign in with an authorized Sage account to access the idea triage pipeline.</p>
+        <button class="btn btn-primary btn-sm" id="btn-admin-signin">Sign In</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/auth.js"></script>
+  <script>
+    const PIPELINE_STATUSES = [
+      'Submitted',
+      'Triage',
+      'Discovery',
+      'Story Written',
+      'In Sprint',
+      'Done',
+      'Rejected',
+      'Duplicate'
+    ];
+
+    let adminItems = [];
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+    }
+
+    function formatDate(isoStr) {
+      if (!isoStr) return '-';
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch {
+        return '-';
+      }
+    }
+
+    function updateCounters() {
+      const counts = {
+        total: adminItems.length,
+        submitted: adminItems.filter(i => (i.status || 'Submitted') === 'Submitted').length,
+        triage: adminItems.filter(i => i.status === 'Triage').length,
+        discovery: adminItems.filter(i => i.status === 'Discovery' || i.status === 'Story Written').length,
+        sprint: adminItems.filter(i => i.status === 'In Sprint').length,
+        done: adminItems.filter(i => i.status === 'Done').length,
+      };
+
+      document.getElementById('count-total').textContent = counts.total;
+      document.getElementById('count-submitted').textContent = counts.submitted;
+      document.getElementById('count-triage').textContent = counts.triage;
+      document.getElementById('count-discovery').textContent = counts.discovery;
+      document.getElementById('count-sprint').textContent = counts.sprint;
+      document.getElementById('count-done').textContent = counts.done;
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('admin-table-body');
+      if (!tbody) return;
+
+      if (adminItems.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 48px; color: var(--text-hero-muted);">
+              No submissions found in DynamoDB.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = adminItems.map(item => {
+        const currentStatus = item.status || 'Submitted';
+        const optionsHtml = PIPELINE_STATUSES.map(st => `
+          <option value="${st}" ${st === currentStatus ? 'selected' : ''}>${st}</option>
+        `).join('');
+
+        return `
+          <tr data-id="${item.id}">
+            <td style="white-space: nowrap; font-size: 0.78rem; color: var(--text-hero-muted);">
+              ${formatDate(item.submittedAt)}
+            </td>
+            <td>
+              <div class="admin-title-cell">${escapeHTML(item.title)}</div>
+              <div class="admin-desc-cell" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</div>
+            </td>
+            <td>
+              <span class="category-tag tag-automation">${escapeHTML(item.type || 'Automation')}</span>
+            </td>
+            <td style="font-size: 0.8rem; color: var(--text-hero-secondary); max-width: 180px;">
+              ${escapeHTML(item.benefit || '-')}
+            </td>
+            <td>
+              <div class="admin-user-cell">
+                <span class="admin-user-name">${escapeHTML(item.submittedByName || 'Anonymous')}</span>
+                <span class="admin-user-email">${escapeHTML(item.submittedByEmail || '')}</span>
+              </div>
+            </td>
+            <td>
+              <select class="admin-status-select" data-id="${item.id}">
+                ${optionsHtml}
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Wire change events for PATCH
+      tbody.querySelectorAll('.admin-status-select').forEach(select => {
+        select.addEventListener('change', async (e) => {
+          const id = select.dataset.id;
+          const newStatus = select.value;
+          select.disabled = true;
+
+          try {
+            const res = await fetch(`${CONFIG.apiBase}/requests/${id}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (!res.ok) throw new Error('Update failed');
+
+            const item = adminItems.find(i => i.id === id);
+            if (item) item.status = newStatus;
+            updateCounters();
+            showAdminToast(`Updated status to "${newStatus}"`);
+          } catch (err) {
+            console.error('PATCH status error:', err);
+            showAdminToast('Failed to update status — please try again.');
+          } finally {
+            select.disabled = false;
+          }
+        });
+      });
+    }
+
+    async function loadAdminData() {
+      try {
+        const res = await fetch(`${CONFIG.apiBase}/requests`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        adminItems = Array.isArray(data) ? data : (data.items || data.value || []);
+        updateCounters();
+        renderAdminTable();
+      } catch (err) {
+        console.error('Error fetching admin requests:', err);
+        showAdminToast('Error fetching requests from API');
+      }
+    }
+
+    function showAdminToast(msg) {
+      let container = document.querySelector('.toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span>${escapeHTML(msg)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Check auth on load
+    function checkAuthAndInit() {
+      const loadingState = document.getElementById('auth-loading-state');
+      const adminContent = document.getElementById('admin-content');
+      const adminUnauthorized = document.getElementById('admin-unauthorized');
+
+      const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+      // Allow access if logged in with sage.com email or test environment
+      if (user) {
+        if (loadingState) loadingState.style.display = 'none';
+        if (adminUnauthorized) adminUnauthorized.style.display = 'none';
+        if (adminContent) adminContent.style.display = 'block';
+        loadAdminData();
+      } else {
+        // Retry shortly in case MSAL is finishing async redirect
+        setTimeout(() => {
+          const recheckUser = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+          if (recheckUser) {
+            if (loadingState) loadingState.style.display = 'none';
+            if (adminUnauthorized) adminUnauthorized.style.display = 'none';
+            if (adminContent) adminContent.style.display = 'block';
+            loadAdminData();
+          } else {
+            if (loadingState) loadingState.style.display = 'none';
+            if (adminUnauthorized) adminUnauthorized.style.display = 'block';
+          }
+        }, 1200);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuthAndInit();
+
+      const refreshBtn = document.getElementById('btn-refresh-admin');
+      if (refreshBtn) refreshBtn.addEventListener('click', loadAdminData);
+
+      const signInBtn = document.getElementById('btn-admin-signin');
+      if (signInBtn) {
+        signInBtn.addEventListener('click', () => {
+          if (typeof msalInstance !== 'undefined') {
+            msalInstance.loginRedirect(loginRequest);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

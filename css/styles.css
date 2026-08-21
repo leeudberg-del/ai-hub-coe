@@ -580,6 +580,25 @@ button, input, select, textarea, .btn, .nav-link, .category-tag, .filter-btn, .v
   letter-spacing: 0.04em;
 }
 
+.idea-status-badge {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-submitted { background: rgba(255, 255, 255, 0.08); color: #E0E0E0; border: 1px solid rgba(255, 255, 255, 0.18); }
+.status-triage { background: rgba(233, 135, 9, 0.15); color: #FFA940; border: 1px solid rgba(233, 135, 9, 0.35); }
+.status-discovery { background: rgba(29, 140, 195, 0.18); color: #5CDBD3; border: 1px solid rgba(29, 140, 195, 0.35); }
+.status-sprint { background: rgba(146, 84, 222, 0.18); color: #D3ADF7; border: 1px solid rgba(146, 84, 222, 0.35); }
+.status-done { background: rgba(0, 214, 57, 0.15); color: var(--sage-green-brilliant); border: 1px solid rgba(0, 214, 57, 0.35); }
+.status-rejected { background: rgba(255, 77, 79, 0.15); color: #FF7875; border: 1px solid rgba(255, 77, 79, 0.35); }
+
 .category-tag {
   font-family: var(--font-ui);
   font-size: 0.72rem;

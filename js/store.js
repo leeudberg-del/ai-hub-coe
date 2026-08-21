@@ -1,18 +1,18 @@
 /**
- * SAGE AI HUB - STATE MANAGEMENT STORE (LOCALSTORAGE + REACTIVE STATE)
+ * SAGE AI HUB - STATE MANAGEMENT STORE (API + FALLBACK + LOCAL CACHE)
  */
 
 class SageStore {
   constructor() {
-    this.storageKeyIdeas = 'sage_aihub_cs_ideas_v2';
     this.storageKeyVotes = 'sage_aihub_cs_votes_v2';
     this.storageKeyProjects = 'sage_aihub_cs_projects_v2';
     
-    this.ideas = this.load(this.storageKeyIdeas, INITIAL_DATA.ideas);
-    this.projects = this.load(this.storageKeyProjects, INITIAL_DATA.activeProjects);
+    this.ideas = [];
+    this.projects = this.load(this.storageKeyProjects, (typeof INITIAL_DATA !== 'undefined' ? INITIAL_DATA.activeProjects : []));
     this.userVotes = new Set(this.load(this.storageKeyVotes, []));
-
     this.listeners = [];
+    this.isLoading = false;
+    this.loadError = null;
   }
 
   load(key, fallback) {
@@ -25,10 +25,8 @@ class SageStore {
     }
   }
 
-  save() {
+  saveVotes() {
     try {
-      localStorage.setItem(this.storageKeyIdeas, JSON.stringify(this.ideas));
-      localStorage.setItem(this.storageKeyProjects, JSON.stringify(this.projects));
       localStorage.setItem(this.storageKeyVotes, JSON.stringify(Array.from(this.userVotes)));
     } catch (e) {
       console.warn("Storage save error:", e);
@@ -44,34 +42,62 @@ class SageStore {
     this.listeners.forEach(fn => fn(this));
   }
 
-  addIdea(newIdea) {
-    const id = `idea-${Date.now()}`;
-    const categoryLabels = {
-      automation: "Automation",
-      capability: "New Tool",
-      process: "Workflow",
-      agent: "Automation"
-    };
+  // Normalize DynamoDB / API record to standard frontend idea object
+  normalizeIdea(item) {
+    const categoryType = (item.type || 'Automation').toLowerCase();
+    let categoryClass = 'automation';
+    if (categoryType.includes('capability') || categoryType.includes('tool')) categoryClass = 'capability';
+    else if (categoryType.includes('process') || categoryType.includes('improve')) categoryClass = 'process';
+    else if (categoryType.includes('agent') || categoryType.includes('solve')) categoryClass = 'agent';
 
-    const ideaObj = {
-      id,
-      title: newIdea.title,
-      category: newIdea.category,
-      categoryLabel: categoryLabels[newIdea.category] || "Idea",
-      description: newIdea.description,
-      impact: newIdea.impact || "Saves time on manual steps",
-      author: newIdea.author || "Service Agent",
-      region: newIdea.region || "UKI",
-      dept: newIdea.dept || "Customer Service",
-      upvotes: 1,
-      status: "under_review",
-      createdAt: new Date().toISOString().split('T')[0]
+    return {
+      id: item.id,
+      title: item.title || 'Untitled Idea',
+      description: item.description || '',
+      type: item.type || 'Idea',
+      category: categoryClass,
+      categoryLabel: item.type || 'Idea',
+      impact: item.benefit || 'Saves time on manual steps',
+      benefit: item.benefit || '',
+      author: item.submittedByName || 'Sage Colleague',
+      email: item.submittedByEmail || '',
+      status: item.status || 'Submitted',
+      submittedAt: item.submittedAt || item.updatedAt || new Date().toISOString(),
+      upvotes: item.upvotes || 0,
+      raw: item
     };
+  }
 
-    this.ideas.unshift(ideaObj);
-    this.userVotes.add(id);
-    this.save();
-    return ideaObj;
+  async fetchIdeas() {
+    this.isLoading = true;
+    this.loadError = null;
+    this.notify();
+
+    try {
+      const apiBase = typeof CONFIG !== 'undefined' && CONFIG.apiBase ? CONFIG.apiBase : '';
+      if (!apiBase) throw new Error('CONFIG.apiBase is not defined');
+      
+      const res = await fetch(`${apiBase}/requests`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      
+      const list = Array.isArray(data) ? data : (data.items || data.value || []);
+      this.ideas = list.map(item => this.normalizeIdea(item));
+      this.isLoading = false;
+      this.notify();
+      return this.ideas;
+    } catch (err) {
+      console.error('Failed to fetch ideas from API:', err);
+      this.loadError = err;
+      this.isLoading = false;
+      
+      // Fallback to mock data if available
+      if (this.ideas.length === 0 && typeof INITIAL_DATA !== 'undefined' && INITIAL_DATA.ideas) {
+        this.ideas = INITIAL_DATA.ideas;
+      }
+      this.notify();
+      return this.ideas;
+    }
   }
 
   toggleVote(ideaId) {
@@ -80,12 +106,12 @@ class SageStore {
 
     if (this.userVotes.has(ideaId)) {
       this.userVotes.delete(ideaId);
-      idea.upvotes = Math.max(0, idea.upvotes - 1);
+      idea.upvotes = Math.max(0, (idea.upvotes || 0) - 1);
     } else {
       this.userVotes.add(ideaId);
-      idea.upvotes += 1;
+      idea.upvotes = (idea.upvotes || 0) + 1;
     }
-    this.save();
+    this.saveVotes();
   }
 
   hasVoted(ideaId) {
@@ -96,7 +122,7 @@ class SageStore {
     const totalIdeas = this.ideas.length;
     const activeProjectsCount = this.projects.filter(p => p.stage === 'active' || p.stage === 'pilot').length;
     const deployedCount = this.projects.filter(p => p.stage === 'live').length;
-    const totalVotes = this.ideas.reduce((acc, curr) => acc + curr.upvotes, 0);
+    const totalVotes = this.ideas.reduce((acc, curr) => acc + (curr.upvotes || 0), 0);
 
     return {
       totalIdeas,
@@ -109,3 +135,4 @@ class SageStore {
 }
 
 window.sageStore = new SageStore();
+
