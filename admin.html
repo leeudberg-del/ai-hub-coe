@@ -1318,8 +1318,9 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function updateStepperProgress(status) {
+    function updateStepperProgress(status, itemData = null) {
       const s = (status || 'Submitted').toLowerCase();
+      const data = itemData || currentItem || {};
       
       const step1Btn = document.getElementById('step-btn-triage');
       const step2Btn = document.getElementById('step-btn-discovery');
@@ -1337,6 +1338,11 @@
       num2.innerHTML = '2';
       num3.innerHTML = '3';
 
+      // Check if user story fields are completed
+      let story = data.userStory || {};
+      if (typeof story === 'string') { try { story = JSON.parse(story); } catch {} }
+      const hasStory = !!(story.role || story.want || story.soThat || data.acceptanceCriteria);
+
       let targetStep = 'triage';
 
       if (s === 'discovery') {
@@ -1353,6 +1359,12 @@
         num2.innerHTML = '&#10003;';
         dividers[0]?.classList.add('completed');
         dividers[1]?.classList.add('completed');
+
+        // If user story is already filled in and saved, Step 3 also ticks!
+        if (hasStory) {
+          step3Btn.classList.add('completed');
+          num3.innerHTML = '&#10003;';
+        }
         targetStep = 'story';
       } else if (s === 'in sprint' || s === 'done' || s === 'live' || s === 'pilot') {
         // Step 1, Step 2, and Step 3 all completed -> all 3 tick!

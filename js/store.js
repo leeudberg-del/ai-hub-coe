@@ -147,10 +147,9 @@ class SageStore {
 
         } else if (s === 'prioritisation' || s === 'prioritization') {
           stage = 'prioritisation';
-          progressLabel = 'PRIORITIZATION';
-          // Discovery is complete, prioritized for backlog / next sprint
-          progress = 100;
-          stagePill = 'Prioritized';
+          progressLabel = 'PRIORITISATION';
+          progress = 0;
+          stagePill = 'In Prioritisation';
 
         } else if (s === 'in sprint' || s === 'active') {
           stage = 'active';
