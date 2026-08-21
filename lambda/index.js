@@ -34,6 +34,7 @@ exports.handler = async (event) => {
       type: body.type || '',
       description: body.description,
       benefit: body.benefit || '',
+      region: body.region || 'Global',
       status: 'Submitted',
       submittedByName: body.submittedByName || '',
       submittedByEmail: body.submittedByEmail || '',
@@ -44,17 +45,58 @@ exports.handler = async (event) => {
     return respond(201, item);
   }
 
+  if (routeKey === 'POST /requests/{id}/vote') {
+    const id = pathParams.id;
+    const body = JSON.parse(rawBody || '{}');
+    const increment = body.decrement ? -1 : 1;
+
+    const result = await client.send(new UpdateCommand({
+      TableName: TABLE,
+      Key: { id },
+      UpdateExpression: 'ADD upvotes :inc SET updatedAt = :u',
+      ExpressionAttributeValues: { ':inc': increment, ':u': new Date().toISOString() },
+      ReturnValues: 'ALL_NEW',
+    }));
+    return respond(200, { id, upvotes: Math.max(0, result.Attributes?.upvotes || 0) });
+  }
+
   if (routeKey === 'PATCH /requests/{id}') {
     const id = pathParams.id;
     const body = JSON.parse(rawBody);
+
+    const allowedKeys = [
+      'status',
+      'triageOutcome',
+      'triageReason',
+      'triageChecklist',
+      'discoveryNotes',
+      'userStory',
+      'acceptanceCriteria',
+      'sizing',
+      'priority',
+      'assignedLead'
+    ];
+
+    const expressions = ['updatedAt = :u'];
+    const names = {};
+    const values = { ':u': new Date().toISOString() };
+
+    allowedKeys.forEach(k => {
+      if (body[k] !== undefined) {
+        expressions.push(`#${k} = :${k}`);
+        names[`#${k}`] = k;
+        values[`:${k}`] = body[k];
+      }
+    });
+
     await client.send(new UpdateCommand({
       TableName: TABLE,
       Key: { id },
-      UpdateExpression: 'SET #s = :s, updatedAt = :u',
-      ExpressionAttributeNames: { '#s': 'status' },
-      ExpressionAttributeValues: { ':s': body.status, ':u': new Date().toISOString() },
+      UpdateExpression: `SET ${expressions.join(', ')}`,
+      ExpressionAttributeNames: Object.keys(names).length > 0 ? names : undefined,
+      ExpressionAttributeValues: values,
     }));
-    return respond(200, { id, status: body.status });
+    return respond(200, { id, ...body });
   }
 
   return respond(404, { error: 'Not found', routeKey });

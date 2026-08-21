@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard &bull; Sage AI Hub</title>
-  <meta name="description" content="Admin view to manage, triage, and update the pipeline status of submitted AI ideas.">
+  <title>Triage &amp; Delivery Management &bull; Sage AI Hub</title>
+  <meta name="description" content="AI Team operating console for intake review, triage assessment, discovery interviews, and delivery pipeline tracking.">
   
   <!-- CSS Stylesheets -->
   <link rel="stylesheet" href="css/brand-tokens.css">
@@ -14,54 +14,198 @@
   
   <style>
     .admin-container {
-      max-width: 1380px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 120px 24px 80px;
+      padding: 100px 28px 80px;
     }
 
+    /* Top Breadcrumb */
+    .view-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-hero-muted);
+      margin-bottom: 24px;
+    }
+
+    .view-breadcrumb a {
+      color: var(--sage-green-brilliant);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .view-breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    /* Admin Page Header */
     .admin-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       margin-bottom: 32px;
       flex-wrap: wrap;
       gap: 20px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
+    .admin-header-left {
+      max-width: 720px;
+    }
+
+    .admin-header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Metric KPI Cards (Cleaner, Compact, Segmented) */
     .admin-stats-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-      margin-bottom: 36px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 1200px) {
+      .admin-stats-strip {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .admin-stats-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .admin-stat-card {
-      background: var(--sage-surface-card);
-      border: 1px solid var(--sage-surface-card-border);
+      background: rgba(16, 24, 19, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: var(--radius-sm);
-      padding: 16px 20px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition-smooth);
+    }
+
+    .admin-stat-card:hover {
+      border-color: rgba(0, 214, 57, 0.3);
+      background: rgba(16, 24, 19, 1);
+    }
+
+    .admin-stat-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
     }
 
     .admin-stat-val {
-      font-size: 1.8rem;
+      font-size: 1.6rem;
       font-weight: 700;
       color: #FFFFFF;
       font-family: var(--font-headline);
+      line-height: 1;
     }
 
     .admin-stat-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-hero-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 4px;
+      letter-spacing: 0.06em;
+      font-weight: 600;
     }
 
-    /* Admin Table Styles */
+    /* Table Toolbar */
+    .admin-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+      max-width: 380px;
+      min-width: 260px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs);
+      padding: 9px 14px 9px 38px;
+      color: #FFFFFF;
+      font-size: 0.86rem;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .search-input:focus {
+      border-color: var(--sage-green-brilliant);
+      background: rgba(0, 0, 0, 0.7);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-hero-muted);
+      pointer-events: none;
+    }
+
+    .filter-tabs {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-xs);
+      padding: 3px;
+      gap: 2px;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-hero-secondary);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition-smooth);
+    }
+
+    .filter-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .filter-btn.active {
+      background: rgba(0, 214, 57, 0.15);
+      color: var(--sage-green-brilliant);
+      border-color: rgba(0, 214, 57, 0.3);
+    }
+
+    /* Modern Table Container */
     .admin-table-wrapper {
-      background: var(--sage-surface-card);
-      border: 1px solid var(--sage-surface-card-border);
-      border-radius: var(--radius-md);
+      background: rgba(14, 20, 16, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm);
       overflow-x: auto;
       box-shadow: var(--shadow-card);
     }
@@ -70,96 +214,379 @@
       width: 100%;
       border-collapse: collapse;
       text-align: left;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
     }
 
     .admin-table th {
-      background: rgba(0, 0, 0, 0.4);
-      padding: 14px 18px;
-      font-size: 0.75rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 12px 18px;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: var(--text-hero-secondary);
-      border-bottom: 1px solid var(--sage-surface-card-border);
+      color: var(--text-hero-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       white-space: nowrap;
     }
 
     .admin-table td {
-      padding: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: #FFFFFF;
-      vertical-align: top;
+      vertical-align: middle;
+    }
+
+    .admin-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .admin-table tr {
+      cursor: pointer;
+      transition: background 0.15s ease;
     }
 
     .admin-table tr:hover td {
-      background: rgba(0, 214, 57, 0.02);
+      background: rgba(0, 214, 57, 0.04);
     }
 
-    .admin-status-select {
-      background: rgba(11, 17, 13, 0.9);
-      border: 1px solid rgba(0, 214, 57, 0.3);
-      color: #FFFFFF;
-      padding: 6px 12px;
+    .admin-tag-cell {
+      white-space: nowrap;
+    }
+
+    /* Dedicated Request Detail View Layout (Full Page) */
+    .detail-view-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .detail-view-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sidebar: Intake Summary */
+    .intake-summary-panel {
+      background: var(--sage-surface-card);
+      border: 1px solid var(--sage-surface-card-border);
+      border-radius: var(--radius-md);
+      padding: 28px;
+      position: sticky;
+      top: 90px;
+    }
+
+    .summary-section-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-hero-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .summary-text-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: var(--radius-xs);
-      font-size: 0.82rem;
+      padding: 14px 16px;
+      font-size: 0.92rem;
+      color: #FFFFFF;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* Right Main Panel: Stage Stepper Workspace */
+    .workspace-panel {
+      background: var(--sage-surface-card);
+      border: 1px solid var(--sage-surface-card-border);
+      border-radius: var(--radius-md);
+      padding: 36px 40px;
+      min-height: 780px;
+    }
+
+    /* Process Progress Stepper */
+    .process-stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-hero-muted);
+      font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      outline: none;
+      padding: 10px 16px;
+      border-radius: var(--radius-xs);
       transition: var(--transition-smooth);
     }
 
-    .admin-status-select:focus {
-      border-color: var(--sage-green-brilliant);
-      box-shadow: 0 0 10px rgba(0, 214, 57, 0.3);
+    .step-item:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
     }
 
-    .admin-status-select:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .step-item.active {
+      color: #FFFFFF;
+      background: rgba(0, 214, 57, 0.12);
+      border-color: rgba(0, 214, 57, 0.4);
     }
 
-    .admin-title-cell {
-      font-weight: 600;
+    .step-item.completed {
+      color: #FFFFFF;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: var(--transition-smooth);
+    }
+
+    .step-item.active .step-number {
+      background: var(--sage-green-brilliant);
+      color: #000000;
+    }
+
+    .step-item.completed .step-number {
+      background: rgba(0, 214, 57, 0.2);
+      border: 1px solid var(--sage-green-brilliant);
+      color: var(--sage-green-brilliant);
+    }
+
+    .step-divider {
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.08);
+      transition: var(--transition-smooth);
+    }
+
+    .step-divider.completed {
+      background: rgba(0, 214, 57, 0.35);
+    }
+
+    /* Triage Checklist Pillar Cards */
+    .triage-pillar-card {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      margin-bottom: 22px;
+    }
+
+    .pillar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .pillar-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pillar-question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pillar-question-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.92rem;
+      color: #E2EFE7;
+      background: rgba(255, 255, 255, 0.025);
+      padding: 14px 18px;
+      border-radius: var(--radius-xs);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      line-height: 1.5;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .pillar-question-item:hover {
+      background: rgba(0, 214, 57, 0.04);
+      border-color: rgba(0, 214, 57, 0.2);
+    }
+
+    .pillar-question-item input[type="checkbox"] {
+      accent-color: var(--sage-green-brilliant);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Outcome Cards Grid */
+    .outcome-selection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+      margin-bottom: 24px;
+    }
+
+    .outcome-choice-btn {
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      color: #FFFFFF;
+      cursor: pointer;
+      text-align: left;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .outcome-choice-btn:hover {
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .outcome-choice-btn.selected-reject { background: rgba(255, 77, 79, 0.15); border-color: #FF7875; }
+    .outcome-choice-btn.selected-duplicate { background: rgba(233, 135, 9, 0.15); border-color: #FFA940; }
+    .outcome-choice-btn.selected-existing { background: rgba(29, 140, 195, 0.15); border-color: #5CDBD3; }
+    .outcome-choice-btn.selected-discovery { background: rgba(0, 214, 57, 0.15); border-color: var(--sage-green-brilliant); }
+
+    /* Form Fields in Discovery & Story */
+    .discovery-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .discovery-question-card {
+      background: rgba(0, 0, 0, 0.38);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: var(--radius-sm);
+      padding: 22px 24px;
+      transition: var(--transition-smooth);
+    }
+
+    .discovery-question-card:focus-within {
+      border-color: rgba(0, 214, 57, 0.4);
+      box-shadow: 0 0 20px rgba(0, 214, 57, 0.08);
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .discovery-q-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(0, 214, 57, 0.15);
+      color: var(--sage-green-brilliant);
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .discovery-q-title {
+      font-size: 1rem;
+      font-weight: 700;
       color: #FFFFFF;
       margin-bottom: 4px;
     }
 
-    .admin-desc-cell {
-      font-size: 0.8rem;
-      color: var(--text-hero-secondary);
-      max-width: 380px;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .admin-user-cell {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .admin-user-name {
-      font-weight: 500;
-      color: #FFFFFF;
-    }
-
-    .admin-user-email {
-      font-size: 0.72rem;
+    .discovery-q-hint {
+      font-size: 0.82rem;
       color: var(--text-hero-muted);
+      margin-bottom: 14px;
+      line-height: 1.45;
     }
 
-    .access-denied-box {
-      text-align: center;
-      padding: 80px 24px;
-      background: var(--sage-surface-card);
-      border: 1px solid var(--sage-surface-card-border);
-      border-radius: var(--radius-md);
-      max-width: 600px;
-      margin: 80px auto;
+    .form-textarea.disc-textarea {
+      min-height: 110px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 14px 16px;
+      background: rgba(11, 17, 13, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs);
+    }
+
+    .form-textarea.disc-textarea:focus {
+      border-color: var(--sage-green-brilliant);
+      background: #000000;
+    }
+
+    .form-input.disc-input {
+      font-size: 0.95rem;
+      padding: 14px 16px;
+      background: rgba(11, 17, 13, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs);
+    }
+
+    .form-input.disc-input:focus {
+      border-color: var(--sage-green-brilliant);
+      background: #000000;
+    }
+
+    .story-card-box {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(0, 214, 57, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 26px 28px;
+      margin-bottom: 26px;
+    }
+
+    .story-line-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--sage-green-brilliant);
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .story-line-input {
+      width: 100%;
+      background: rgba(11, 17, 13, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xs);
+      color: #FFFFFF;
+      padding: 13px 16px;
+      font-size: 0.95rem;
+      margin-bottom: 18px;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .story-line-input:focus {
+      border-color: var(--sage-green-brilliant);
+      background: #000000;
+      box-shadow: 0 0 16px rgba(0, 214, 57, 0.15);
     }
   </style>
 
@@ -176,7 +603,7 @@
     <div class="container nav-container">
       <a href="index.html" class="brand-wrapper" aria-label="Sage AI Hub Home">
         <img src="sage_symbol.png" alt="Sage" class="brand-logo-img">
-        <span class="brand-badge">CSO AI HUB &bull; ADMIN</span>
+        <span class="brand-badge">AI HUB &bull; ADMIN CONSOLE</span>
       </a>
 
       <nav aria-label="Main Navigation">
@@ -191,20 +618,36 @@
 
   <main>
     <div class="admin-container" id="admin-view">
+      
+      <!-- Authentication state -->
       <div id="auth-loading-state" style="text-align: center; padding: 100px 0;">
         <div style="display: inline-block; width: 32px; height: 32px; border: 3px solid rgba(0,214,57,0.2); border-top-color: var(--sage-green-brilliant); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;"></div>
-        <p style="color: var(--text-hero-secondary);">Authenticating admin session...</p>
+        <p style="color: var(--text-hero-secondary);">Authenticating session...</p>
       </div>
 
-      <div id="admin-content" style="display: none;">
+      <!-- Unauthorized State -->
+      <div id="admin-unauthorized" style="display: none;" class="access-denied-box">
+        <h2 style="color: #FF7875; margin-bottom: 12px;">Admin Access Required</h2>
+        <p style="color: var(--text-hero-secondary); margin-bottom: 24px;">Please sign in with an authorized Sage account to access the triage console.</p>
+        <button class="btn btn-primary btn-sm" id="btn-admin-signin">Sign In</button>
+      </div>
+
+      <!-- ====================================================================
+           VIEW 1: REQUESTS LIST / PIPELINE TABLE VIEW
+           ==================================================================== -->
+      <div id="view-requests-list" style="display: none;">
         <div class="admin-header">
-          <div>
-            <span class="section-tag">Management Console</span>
-            <h1 class="section-title" style="font-size: 2.2rem;">Pipeline Triage &amp; Status</h1>
-            <p class="section-subtitle">Review incoming submissions from across regions, update pipeline stages, and track development progression.</p>
+          <div class="admin-header-left">
+            <span class="section-tag">Operating Management</span>
+            <h1 class="section-title" style="font-size: 2.2rem; margin-top: 4px; margin-bottom: 6px;">Requests &amp; Triage Pipeline</h1>
+            <p class="section-subtitle" style="margin-bottom: 0;">Review incoming business ideas, conduct structured 3-pillar triage, and manage discovery through delivery.</p>
           </div>
 
-          <div style="display: flex; gap: 12px; align-items: center;">
+          <div class="admin-header-actions">
+            <button class="btn btn-outline btn-sm" id="btn-export-csv">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export CSV
+            </button>
             <button class="btn btn-outline btn-sm" id="btn-refresh-admin">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
               Refresh
@@ -212,31 +655,66 @@
           </div>
         </div>
 
-        <!-- Metric Strips -->
+        <!-- Metric KPI Cards -->
         <div class="admin-stats-strip">
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-total">0</div>
-            <div class="admin-stat-label">Total Submissions</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-total">0</span>
+            </div>
+            <div class="admin-stat-label">Total Requests</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-submitted" style="color: #E0E0E0;">0</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-submitted" style="color: #FFFFFF;">0</span>
+            </div>
             <div class="admin-stat-label">Submitted</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-triage" style="color: #FFA940;">0</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-triage" style="color: #FFA940;">0</span>
+            </div>
             <div class="admin-stat-label">In Triage</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-discovery" style="color: #5CDBD3;">0</div>
-            <div class="admin-stat-label">Discovery / Story</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-discovery" style="color: #5CDBD3;">0</span>
+            </div>
+            <div class="admin-stat-label">Discovery</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-sprint" style="color: #D3ADF7;">0</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-prioritisation" style="color: #D3ADF7;">0</span>
+            </div>
+            <div class="admin-stat-label">Prioritisation</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-sprint" style="color: #B37FEB;">0</span>
+            </div>
             <div class="admin-stat-label">In Sprint</div>
           </div>
           <div class="admin-stat-card">
-            <div class="admin-stat-val" id="count-done" style="color: var(--sage-green-brilliant);">0</div>
-            <div class="admin-stat-label">Completed / Done</div>
+            <div class="admin-stat-top">
+              <span class="admin-stat-val" id="count-done" style="color: var(--sage-green-brilliant);">0</span>
+            </div>
+            <div class="admin-stat-label">Delivered</div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="admin-toolbar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" class="search-input" id="admin-search-input" placeholder="Search by title, requester, region, or keywords...">
+          </div>
+          <div class="filter-tabs" id="admin-status-tabs">
+            <button class="filter-btn active" data-status="all">All</button>
+            <button class="filter-btn" data-status="Submitted">Submitted</button>
+            <button class="filter-btn" data-status="Triage">Triage</button>
+            <button class="filter-btn" data-status="Discovery">Discovery</button>
+            <button class="filter-btn" data-status="Prioritisation">Prioritisation</button>
+            <button class="filter-btn" data-status="In Sprint">In Sprint</button>
+            <button class="filter-btn" data-status="Done">Delivered</button>
           </div>
         </div>
 
@@ -245,14 +723,15 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Submitted</th>
-                <th>Title &amp; Description</th>
-                <th>Category / Type</th>
-                <th>Benefit</th>
-                <th>Submitted By</th>
-                <th>Pipeline Status</th>
+                <th style="width: 110px;">Date</th>
+                <th style="width: 90px;">Region</th>
+                <th>Request Title &amp; Description</th>
+                <th style="width: 140px;">Type</th>
+                <th style="width: 160px;">Expected Benefit</th>
+                <th style="width: 160px;">Requester</th>
+                <th style="width: 110px;">Status</th>
+                <th style="width: 100px; text-align: right;">Action</th>
               </tr>
-            </thead>
             <tbody id="admin-table-body">
               <!-- Rendered dynamically -->
             </tbody>
@@ -260,29 +739,339 @@
         </div>
       </div>
 
-      <!-- Unauthorized State -->
-      <div id="admin-unauthorized" style="display: none;" class="access-denied-box">
-        <h2 style="color: #FF7875; margin-bottom: 12px;">Admin Access Required</h2>
-        <p style="color: var(--text-hero-secondary); margin-bottom: 24px;">Please sign in with an authorized Sage account to access the idea triage pipeline.</p>
-        <button class="btn btn-primary btn-sm" id="btn-admin-signin">Sign In</button>
+      <!-- ====================================================================
+           VIEW 2: DEDICATED FULL-PAGE TRIAGE & DISCOVERY WORKSPACE
+           ==================================================================== -->
+      <div id="view-request-detail" style="display: none;">
+        
+        <div class="view-breadcrumb">
+          <a href="#" id="btn-back-to-list">&larr; Back to all requests</a>
+          <span>/</span>
+          <span id="breadcrumb-req-title" style="color: #FFFFFF; font-weight: 500;">Request Details</span>
+        </div>
+
+        <div class="detail-view-layout">
+          
+          <!-- LEFT COLUMN: Intake Details Summary -->
+          <aside class="intake-summary-panel">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <span class="region-badge" id="detail-region-badge">Global</span>
+              <span class="idea-status-badge status-submitted" id="detail-status-badge">Submitted</span>
+            </div>
+
+            <h2 id="detail-title" style="font-size: 1.25rem; font-weight: 700; color: #FFFFFF; line-height: 1.35; margin-bottom: 18px;"></h2>
+
+            <div class="summary-section-label">Problem Description</div>
+            <div class="summary-text-block" id="detail-desc"></div>
+
+            <div class="summary-section-label">What are they trying to do?</div>
+            <div style="color: #FFFFFF; font-size: 0.88rem; font-weight: 600; margin-bottom: 16px;" id="detail-type"></div>
+
+            <div class="summary-section-label">Expected Benefit</div>
+            <div style="color: #FFFFFF; font-size: 0.88rem; margin-bottom: 16px;" id="detail-benefit"></div>
+
+            <div class="summary-section-label">Requester Information</div>
+            <div style="font-size: 0.85rem; color: #FFFFFF; margin-bottom: 4px;" id="detail-author"></div>
+            <div style="font-size: 0.78rem; color: var(--text-hero-muted); margin-bottom: 14px;" id="detail-email"></div>
+
+            <div class="summary-section-label">Submitted On</div>
+            <div style="font-size: 0.82rem; color: var(--text-hero-muted);" id="detail-date"></div>
+          </aside>
+
+          <!-- RIGHT COLUMN: Workflow Assessment & Discovery Workspace -->
+          <section class="workspace-panel">
+            
+            <!-- Process Stepper -->
+            <div class="process-stepper">
+              <button class="step-item active" data-step="triage" id="step-btn-triage">
+                <span class="step-number">1</span>
+                <span>Triage Assessment</span>
+              </button>
+              <div class="step-divider"></div>
+              <button class="step-item" data-step="discovery" id="step-btn-discovery">
+                <span class="step-number">2</span>
+                <span>Discovery Interview</span>
+              </button>
+              <div class="step-divider"></div>
+              <button class="step-item" data-step="story" id="step-btn-story">
+                <span class="step-number">3</span>
+                <span>User Story &amp; Delivery</span>
+              </button>
+            </div>
+
+            <!-- STEP 1 PANE: Structured Triage Assessment -->
+            <div id="pane-triage" class="workspace-pane">
+              <div style="margin-bottom: 22px;">
+                <h3 style="font-size: 1.2rem; color: #FFFFFF; margin-bottom: 4px;">Initial Triage Assessment</h3>
+                <p style="color: var(--text-hero-secondary); font-size: 0.88rem;">Answer the core assessment questions to determine if this request should proceed to discovery.</p>
+              </div>
+
+              <!-- Pillar 1: Strategic Fit -->
+              <div class="triage-pillar-card">
+                <div class="pillar-header">
+                  <div class="pillar-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-green-brilliant)" stroke-width="2.5"><path d="M12 2v20M2 12h20"/></svg>
+                    Strategic Fit
+                  </div>
+                </div>
+                <div class="pillar-question-list">
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-strategic-1" class="triage-chk">
+                    <span>Does this align to current business objectives?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-strategic-2" class="triage-chk">
+                    <span>Does it support the AI strategy and agreed priorities?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-strategic-3" class="triage-chk">
+                    <span>Is the potential value worth the team's time to investigate further?</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Pillar 2: Existing Solution Check -->
+              <div class="triage-pillar-card">
+                <div class="pillar-header">
+                  <div class="pillar-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5CDBD3" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Existing Solution Check
+                  </div>
+                </div>
+                <div class="pillar-question-list">
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-exist-1" class="triage-chk">
+                    <span>Does this capability already exist in a tool the business has access to (e.g. Copilot)?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-exist-2" class="triage-chk">
+                    <span>Has a similar request already been submitted?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-exist-3" class="triage-chk">
+                    <span>Is a similar solution already in flight in the backlog?</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Pillar 3: Feasibility Check -->
+              <div class="triage-pillar-card">
+                <div class="pillar-header">
+                  <div class="pillar-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFA940" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    Feasibility Check
+                  </div>
+                </div>
+                <div class="pillar-question-list">
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-feas-1" class="triage-chk">
+                    <span>Does the required data likely exist?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-feas-2" class="triage-chk">
+                    <span>Is system access likely achievable?</span>
+                  </label>
+                  <label class="pillar-question-item">
+                    <input type="checkbox" id="chk-feas-3" class="triage-chk">
+                    <span>Are there any obvious compliance or legal blockers?</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Triage Decision Outcome -->
+              <div style="margin-top: 24px;">
+                <h4 style="font-size: 1rem; color: #FFFFFF; margin-bottom: 8px;">Triage Outcome Decision</h4>
+                <div class="outcome-selection-grid">
+                  <button class="outcome-choice-btn" data-outcome="Rejected" id="btn-out-reject">
+                    <strong style="color: #FF7875; font-size: 0.95rem;">🔴 Rejected</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-hero-muted);">Does not meet the bar</span>
+                  </button>
+
+                  <button class="outcome-choice-btn" data-outcome="Duplicate" id="btn-out-duplicate">
+                    <strong style="color: #FFA940; font-size: 0.95rem;">🟡 Duplicate</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-hero-muted);">Merged with backlog</span>
+                  </button>
+
+                  <button class="outcome-choice-btn" data-outcome="Existing Tool" id="btn-out-existing">
+                    <strong style="color: #5CDBD3; font-size: 0.95rem;">🔵 Existing Tool</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-hero-muted);">Tool already exists</span>
+                  </button>
+
+                  <button class="outcome-choice-btn" data-outcome="Discovery" id="btn-out-discovery">
+                    <strong style="color: var(--sage-green-brilliant); font-size: 0.95rem;">🟢 Proceed to Discovery</strong>
+                    <span style="font-size: 0.78rem; color: var(--text-hero-muted);">Passes all triage checks</span>
+                  </button>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="triage-decision-notes">Triage Decision Notes / Feedback for Requester</label>
+                  <textarea id="triage-decision-notes" class="form-textarea" placeholder="E.g. 'Passes strategic checks. Booking discovery interview' or 'Microsoft Copilot already provides this capability.'"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2 PANE: Discovery Interview Questions -->
+            <div id="pane-discovery" class="workspace-pane" style="display: none;">
+              <div style="margin-bottom: 28px;">
+                <h3 style="font-size: 1.35rem; color: #FFFFFF; margin-bottom: 6px;">Discovery Interview</h3>
+                <p style="color: var(--text-hero-secondary); font-size: 0.92rem; line-height: 1.5;">Gather enough understanding of the problem — not to design the solution. Focus on outcomes and friction points.</p>
+              </div>
+
+              <div class="discovery-grid">
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">1</span>Outcome — What are you trying to achieve?</div>
+                  <div class="discovery-q-hint">The end state, not the solution. What does success look like when this exists?</div>
+                  <textarea id="disc-outcome" class="form-textarea disc-textarea" placeholder="Describe the desired end state and business impact..."></textarea>
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">2</span>Users — Who will use this?</div>
+                  <div class="discovery-q-hint">Roles, teams, volume of users and how often they would use it.</div>
+                  <input type="text" id="disc-users" class="form-input disc-input" placeholder="e.g. 120 Customer Support Agents (daily), 15 Operations Team Leads (weekly)">
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">3</span>Current Process — How is it done today?</div>
+                  <div class="discovery-q-hint">Walk through every step. Where is the friction? What takes the most time?</div>
+                  <textarea id="disc-current" class="form-textarea disc-textarea" placeholder="Step 1: User exports data from system...&#10;Step 2: Manually consolidates in Excel...&#10;Friction point: Takes 4 hours per week and error prone."></textarea>
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">4</span>Future Process — What would success look like?</div>
+                  <div class="discovery-q-hint">Describe the ideal future state in concrete terms. What would change day-to-day?</div>
+                  <textarea id="disc-future" class="form-textarea disc-textarea" placeholder="Describe how the workflow functions once the AI solution is deployed..."></textarea>
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">5</span>Data — What information is required?</div>
+                  <div class="discovery-q-hint">What data does the solution need? Where does it come from? Who owns it?</div>
+                  <textarea id="disc-data" class="form-textarea disc-textarea" placeholder="Source systems, API endpoints, documents, or databases required..."></textarea>
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">6</span>Constraints — Anything we must do or avoid?</div>
+                  <div class="discovery-q-hint">Regulatory, technical, organisational. What are the non-negotiables?</div>
+                  <textarea id="disc-constraints" class="form-textarea disc-textarea" placeholder="e.g. GDPR compliance, PII masking, existing SSO authentication required..."></textarea>
+                </div>
+
+                <div class="discovery-question-card">
+                  <div class="discovery-q-title"><span class="discovery-q-num">7</span>Value — How would we know this worked?</div>
+                  <div class="discovery-q-hint">Agree a measurable outcome upfront. Time saved, accuracy improved, cost reduced — be specific.</div>
+                  <textarea id="disc-value" class="form-textarea disc-textarea" placeholder="e.g. 70% reduction in manual triage time (~15 hours saved per agent per month)..."></textarea>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 14px; margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                <button type="button" class="btn btn-primary" id="btn-complete-discovery" style="padding: 12px 24px; font-size: 0.92rem;">
+                  Save Discovery &amp; Proceed to User Story &rarr;
+                </button>
+              </div>
+            </div>
+
+            <!-- STEP 3 PANE: User Story & Delivery -->
+            <div id="pane-story" class="workspace-pane" style="display: none;">
+              <div style="margin-bottom: 28px;">
+                <h3 style="font-size: 1.35rem; color: #FFFFFF; margin-bottom: 6px;">User Story &amp; Delivery Definition</h3>
+                <p style="color: var(--text-hero-secondary); font-size: 0.92rem; line-height: 1.5;">Agreed definition of what will be built, acceptance criteria, effort sizing, and priority.</p>
+              </div>
+
+              <!-- User Story Structure Card -->
+              <div class="story-card-box">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 18px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-green-brilliant)" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  <strong style="color: #FFFFFF; font-size: 1.05rem;">Agreed User Story</strong>
+                </div>
+
+                <div class="story-line-label">As a</div>
+                <input type="text" id="story-role" class="story-line-input" placeholder="e.g. Customer Support Manager">
+
+                <div class="story-line-label">I want</div>
+                <input type="text" id="story-want" class="story-line-input" placeholder="e.g. a daily AI-generated summary of team activity and blockers">
+
+                <div class="story-line-label">So that</div>
+                <input type="text" id="story-so-that" class="story-line-input" placeholder="e.g. I can quickly identify risks and trends without manual collation">
+              </div>
+
+              <!-- Acceptance Criteria Box -->
+              <div class="form-group" style="margin-bottom: 28px;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                  <label class="form-label" style="font-size: 0.95rem; font-weight: 700; color: #FFFFFF;" for="story-criteria">Acceptance Criteria &amp; Definition of Done</label>
+                  <span style="font-size: 0.78rem; color: var(--text-hero-muted);">Data · Functional · User Outcome</span>
+                </div>
+                <textarea id="story-criteria" class="form-textarea disc-textarea" style="min-height: 180px;" placeholder="Data:&#10;- Source data can be accessed with required metadata&#10;&#10;Functional:&#10;- Analyzes previous day's inputs and groups key themes&#10;- Flags immediate blockers and highlights actions&#10;&#10;User Outcome:&#10;- Managers review key themes in a single morning digest&#10;- Saves ~15 hours of manual collation per week"></textarea>
+              </div>
+
+              <!-- Sizing & Schedulng Box -->
+              <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius-sm); padding: 26px 28px;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage-green-brilliant)" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <strong style="color: #FFFFFF; font-size: 1.05rem;">Sizing, Prioritisation &amp; Delivery Management</strong>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.82rem; color: #FFFFFF; margin-bottom: 8px;">Sizing (Effort)</label>
+                    <select id="story-sizing" class="form-input disc-input" style="background: rgba(11, 17, 13, 0.95); height: 48px;">
+                      <option value="">Select Sizing</option>
+                      <option value="S">S — Small (1-2 Sprints)</option>
+                      <option value="M">M — Medium (3-4 Sprints)</option>
+                      <option value="L">L — Large (Multi-Sprint)</option>
+                      <option value="XL">XL — Strategic Epic</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.82rem; color: #FFFFFF; margin-bottom: 8px;">Priority</label>
+                    <select id="story-priority" class="form-input disc-input" style="background: rgba(11, 17, 13, 0.95); height: 48px;">
+                      <option value="High">High Priority</option>
+                      <option value="Medium" selected>Medium Priority</option>
+                      <option value="Low">Low Priority</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.82rem; color: #FFFFFF; margin-bottom: 8px;">Pipeline Status</label>
+                    <select id="detail-stage-select" class="form-input disc-input" style="background: rgba(11, 17, 13, 0.95); height: 48px;">
+                      <option value="Submitted">Submitted</option>
+                      <option value="Triage">Triage</option>
+                      <option value="Discovery">Discovery</option>
+                      <option value="Prioritisation">Prioritisation</option>
+                      <option value="In Sprint">In Sprint</option>
+                      <option value="Done">Delivered</option>
+                      <option value="Rejected">Rejected</option>
+                      <option value="Duplicate">Duplicate</option>
+                      <option value="Existing Tool">Existing Tool</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 0.82rem; color: #FFFFFF; margin-bottom: 8px;">Assigned AI Delivery Lead</label>
+                    <input type="text" id="story-lead" class="form-input disc-input" style="height: 48px;" placeholder="e.g. AI Delivery Engineer">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Action Footer -->
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+              <button class="btn btn-outline" id="btn-save-and-back">Save &amp; Return to List</button>
+              <button class="btn btn-primary" id="btn-save-detail">Save Changes</button>
+            </div>
+
+          </section>
+        </div>
+
       </div>
+
     </div>
   </main>
 
   <script src="js/auth.js"></script>
   <script>
-    const PIPELINE_STATUSES = [
-      'Submitted',
-      'Triage',
-      'Discovery',
-      'Story Written',
-      'In Sprint',
-      'Done',
-      'Rejected',
-      'Duplicate'
-    ];
-
     let adminItems = [];
+    let currentItem = null;
+    let currentAdminStatusFilter = 'all';
+    let currentAdminSearch = '';
 
     function escapeHTML(str) {
       if (!str) return '';
@@ -299,12 +1088,23 @@
       }
     }
 
+    function getStatusBadgeClass(status) {
+      const s = (status || '').toLowerCase();
+      if (s.includes('done') || s.includes('live')) return 'status-done';
+      if (s.includes('sprint') || s.includes('dev')) return 'status-sprint';
+      if (s.includes('discovery') || s.includes('story')) return 'status-discovery';
+      if (s.includes('triage')) return 'status-triage';
+      if (s.includes('reject') || s.includes('duplicate') || s.includes('exist')) return 'status-rejected';
+      return 'status-submitted';
+    }
+
     function updateCounters() {
       const counts = {
         total: adminItems.length,
         submitted: adminItems.filter(i => (i.status || 'Submitted') === 'Submitted').length,
         triage: adminItems.filter(i => i.status === 'Triage').length,
-        discovery: adminItems.filter(i => i.status === 'Discovery' || i.status === 'Story Written').length,
+        discovery: adminItems.filter(i => i.status === 'Discovery').length,
+        prioritisation: adminItems.filter(i => i.status === 'Prioritisation' || i.status === 'Prioritization' || i.status === 'Story Written').length,
         sprint: adminItems.filter(i => i.status === 'In Sprint').length,
         done: adminItems.filter(i => i.status === 'Done').length,
       };
@@ -313,89 +1113,410 @@
       document.getElementById('count-submitted').textContent = counts.submitted;
       document.getElementById('count-triage').textContent = counts.triage;
       document.getElementById('count-discovery').textContent = counts.discovery;
+      document.getElementById('count-prioritisation').textContent = counts.prioritisation;
       document.getElementById('count-sprint').textContent = counts.sprint;
       document.getElementById('count-done').textContent = counts.done;
+    }
+
+    function filterAdminItems() {
+      return adminItems.filter(item => {
+        const matchesStatus = currentAdminStatusFilter === 'all' || (item.status || 'Submitted').toLowerCase() === currentAdminStatusFilter.toLowerCase();
+        const q = currentAdminSearch.toLowerCase();
+        const matchesSearch = !q || 
+          (item.title || '').toLowerCase().includes(q) ||
+          (item.description || '').toLowerCase().includes(q) ||
+          (item.submittedByName || '').toLowerCase().includes(q) ||
+          (item.submittedByEmail || '').toLowerCase().includes(q) ||
+          (item.region || '').toLowerCase().includes(q) ||
+          (item.type || '').toLowerCase().includes(q);
+        return matchesStatus && matchesSearch;
+      });
     }
 
     function renderAdminTable() {
       const tbody = document.getElementById('admin-table-body');
       if (!tbody) return;
 
-      if (adminItems.length === 0) {
+      const filtered = filterAdminItems();
+
+      if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; padding: 48px; color: var(--text-hero-muted);">
-              No submissions found in DynamoDB.
+            <td colspan="8" style="text-align: center; padding: 48px; color: var(--text-hero-muted);">
+              No submissions match the current filter.
             </td>
           </tr>
         `;
         return;
       }
 
-      tbody.innerHTML = adminItems.map(item => {
+      tbody.innerHTML = filtered.map(item => {
         const currentStatus = item.status || 'Submitted';
-        const optionsHtml = PIPELINE_STATUSES.map(st => `
-          <option value="${st}" ${st === currentStatus ? 'selected' : ''}>${st}</option>
-        `).join('');
+
+        const categoryType = (item.type || 'Automation').toLowerCase();
+        let catClass = 'tag-automation';
+        if (categoryType.includes('capability') || categoryType.includes('create')) catClass = 'tag-capability';
+        else if (categoryType.includes('process') || categoryType.includes('improve')) catClass = 'tag-process';
+        else if (categoryType.includes('explore') || categoryType.includes('agent')) catClass = 'tag-agent';
 
         return `
-          <tr data-id="${item.id}">
+          <tr data-id="${item.id}" onclick="openRequestDetail('${item.id}')">
             <td style="white-space: nowrap; font-size: 0.78rem; color: var(--text-hero-muted);">
               ${formatDate(item.submittedAt)}
             </td>
             <td>
-              <div class="admin-title-cell">${escapeHTML(item.title)}</div>
-              <div class="admin-desc-cell" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</div>
+              <span class="region-badge">${escapeHTML(item.region || 'Global')}</span>
             </td>
             <td>
-              <span class="category-tag tag-automation">${escapeHTML(item.type || 'Automation')}</span>
+              <div style="font-weight: 600; color: #FFFFFF; font-size: 0.92rem; margin-bottom: 3px;">${escapeHTML(item.title)}</div>
+              <div style="font-size: 0.8rem; color: var(--text-hero-secondary); max-width: 440px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" title="${escapeHTML(item.description)}">${escapeHTML(item.description)}</div>
             </td>
-            <td style="font-size: 0.8rem; color: var(--text-hero-secondary); max-width: 180px;">
+            <td class="admin-tag-cell">
+              <span class="category-tag ${catClass}">${escapeHTML(item.type || 'Automation')}</span>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-hero-secondary); line-height: 1.4;">
               ${escapeHTML(item.benefit || '-')}
             </td>
             <td>
-              <div class="admin-user-cell">
-                <span class="admin-user-name">${escapeHTML(item.submittedByName || 'Anonymous')}</span>
-                <span class="admin-user-email">${escapeHTML(item.submittedByEmail || '')}</span>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-weight: 600; color: #FFFFFF; font-size: 0.85rem;">${escapeHTML(item.submittedByName || 'Anonymous')}</span>
+                <span style="font-size: 0.72rem; color: var(--text-hero-muted);">${escapeHTML(item.submittedByEmail || '')}</span>
               </div>
             </td>
             <td>
-              <select class="admin-status-select" data-id="${item.id}">
-                ${optionsHtml}
-              </select>
+              <span class="idea-status-badge ${getStatusBadgeClass(currentStatus)}">${escapeHTML(currentStatus)}</span>
+            </td>
+            <td style="text-align: right;">
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); openRequestDetail('${item.id}')" style="padding: 6px 14px; font-size: 0.78rem;">
+                Triage &rarr;
+              </button>
             </td>
           </tr>
         `;
       }).join('');
+    }
 
-      // Wire change events for PATCH
-      tbody.querySelectorAll('.admin-status-select').forEach(select => {
-        select.addEventListener('change', async (e) => {
-          const id = select.dataset.id;
-          const newStatus = select.value;
-          select.disabled = true;
+    // --- NAVIGATION BETWEEN LIST VIEW & DETAIL WORKSPACE ---
+    function showListView() {
+      document.getElementById('view-requests-list').style.display = 'block';
+      document.getElementById('view-request-detail').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-          try {
-            const res = await fetch(`${CONFIG.apiBase}/requests/${id}`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ status: newStatus }),
-            });
+    function formatDescriptionHTML(text) {
+      if (!text) return 'No description provided.';
+      // Split on newlines, wrap in styled paragraphs or bullet points
+      const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
+      return paragraphs.map(p => {
+        if (p.startsWith('-') || p.startsWith('•')) {
+          return `<div style="padding-left: 12px; margin-bottom: 6px; position: relative;"><span style="position: absolute; left: 0; color: var(--sage-green-brilliant);">&bull;</span>${escapeHTML(p.replace(/^[-•]\s*/, ''))}</div>`;
+        }
+        return `<p style="margin-bottom: 12px; line-height: 1.65; color: #E8F0EC;">${escapeHTML(p)}</p>`;
+      }).join('');
+    }
 
-            if (!res.ok) throw new Error('Update failed');
+    function getLocalDetailCache(id) {
+      try {
+        const raw = localStorage.getItem(`ai_hub_req_${id}`);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    }
 
-            const item = adminItems.find(i => i.id === id);
-            if (item) item.status = newStatus;
-            updateCounters();
-            showAdminToast(`Updated status to "${newStatus}"`);
-          } catch (err) {
-            console.error('PATCH status error:', err);
-            showAdminToast('Failed to update status — please try again.');
-          } finally {
-            select.disabled = false;
-          }
-        });
+    function setLocalDetailCache(id, data) {
+      try {
+        const current = getLocalDetailCache(id);
+        const merged = { ...current, ...data };
+        localStorage.setItem(`ai_hub_req_${id}`, JSON.stringify(merged));
+      } catch (e) {
+        console.error('Cache save error:', e);
+      }
+    }
+
+    function openRequestDetail(id) {
+      const item = adminItems.find(i => i.id === id);
+      if (!item) return;
+      currentItem = item;
+
+      // Merge local cache to guarantee zero data loss
+      const cached = getLocalDetailCache(id);
+      Object.assign(item, cached);
+
+      // Populate Breadcrumb & Left Sidebar
+      document.getElementById('breadcrumb-req-title').textContent = item.title;
+      document.getElementById('detail-title').textContent = item.title;
+      document.getElementById('detail-region-badge').textContent = item.region || 'Global';
+      
+      const statusBadge = document.getElementById('detail-status-badge');
+      statusBadge.textContent = item.status || 'Submitted';
+      statusBadge.className = `idea-status-badge ${getStatusBadgeClass(item.status)}`;
+
+      // Render problem description with clean readable paragraph & bullet formatting
+      document.getElementById('detail-desc').innerHTML = formatDescriptionHTML(item.description);
+      document.getElementById('detail-type').textContent = item.type || 'Automation';
+      document.getElementById('detail-benefit').textContent = item.benefit || 'General productivity';
+      document.getElementById('detail-author').textContent = item.submittedByName || 'Anonymous';
+      document.getElementById('detail-email').textContent = item.submittedByEmail || 'No email registered';
+      document.getElementById('detail-date').textContent = formatDate(item.submittedAt);
+
+      // Populate Step 1: Triage Assessment Checklist
+      let chk = item.triageChecklist || {};
+      if (typeof chk === 'string') { try { chk = JSON.parse(chk); } catch {} }
+      document.getElementById('chk-strategic-1').checked = chk.strategic1 !== undefined ? !!chk.strategic1 : !!chk.strategic;
+      document.getElementById('chk-strategic-2').checked = chk.strategic2 !== undefined ? !!chk.strategic2 : !!chk.strategic;
+      document.getElementById('chk-strategic-3').checked = chk.strategic3 !== undefined ? !!chk.strategic3 : !!chk.strategic;
+
+      document.getElementById('chk-exist-1').checked = chk.exist1 !== undefined ? !!chk.exist1 : !!chk.existing;
+      document.getElementById('chk-exist-2').checked = chk.exist2 !== undefined ? !!chk.exist2 : !!chk.existing;
+      document.getElementById('chk-exist-3').checked = chk.exist3 !== undefined ? !!chk.exist3 : !!chk.existing;
+
+      document.getElementById('chk-feas-1').checked = chk.feas1 !== undefined ? !!chk.feas1 : !!chk.feasibility;
+      document.getElementById('chk-feas-2').checked = chk.feas2 !== undefined ? !!chk.feas2 : !!chk.feasibility;
+      document.getElementById('chk-feas-3').checked = chk.feas3 !== undefined ? !!chk.feas3 : !!chk.feasibility;
+
+      document.getElementById('triage-decision-notes').value = item.triageReason || '';
+
+      // Highlight Outcome
+      document.querySelectorAll('.outcome-choice-btn').forEach(b => b.className = 'outcome-choice-btn');
+      if (item.status === 'Rejected') document.getElementById('btn-out-reject').classList.add('selected-reject');
+      if (item.status === 'Duplicate') document.getElementById('btn-out-duplicate').classList.add('selected-duplicate');
+      if (item.status === 'Existing Tool') document.getElementById('btn-out-existing').classList.add('selected-existing');
+      if (item.status === 'Discovery' || item.status === 'Prioritisation' || item.status === 'In Sprint' || item.status === 'Done') {
+        document.getElementById('btn-out-discovery').classList.add('selected-discovery');
+      }
+
+      // Populate Step 2: Discovery
+      let disc = item.discoveryNotes || {};
+      if (typeof disc === 'string') { try { disc = JSON.parse(disc); } catch {} }
+      document.getElementById('disc-outcome').value = disc.outcome || '';
+      document.getElementById('disc-users').value = disc.users || '';
+      document.getElementById('disc-current').value = disc.current || '';
+      document.getElementById('disc-future').value = disc.future || '';
+      document.getElementById('disc-data').value = disc.data || '';
+      document.getElementById('disc-constraints').value = disc.constraints || '';
+      document.getElementById('disc-value').value = disc.value || '';
+
+      // Populate Step 3: Story
+      let story = item.userStory || {};
+      if (typeof story === 'string') { try { story = JSON.parse(story); } catch {} }
+      document.getElementById('story-role').value = story.role || '';
+      document.getElementById('story-want').value = story.want || '';
+      document.getElementById('story-so-that').value = story.soThat || '';
+      document.getElementById('story-criteria').value = item.acceptanceCriteria || '';
+      document.getElementById('story-sizing').value = item.sizing || '';
+      document.getElementById('story-priority').value = item.priority || 'Medium';
+      document.getElementById('detail-stage-select').value = item.status || 'Submitted';
+      document.getElementById('story-lead').value = item.assignedLead || '';
+
+      // Determine initial active step and update completed checkmark states
+      updateStepperProgress(item.status);
+
+      // Switch view
+      document.getElementById('view-requests-list').style.display = 'none';
+      document.getElementById('view-request-detail').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateStepperProgress(status) {
+      const s = (status || 'Submitted').toLowerCase();
+      
+      const step1Btn = document.getElementById('step-btn-triage');
+      const step2Btn = document.getElementById('step-btn-discovery');
+      const step3Btn = document.getElementById('step-btn-story');
+      const dividers = document.querySelectorAll('.step-divider');
+
+      const num1 = step1Btn.querySelector('.step-number');
+      const num2 = step2Btn.querySelector('.step-number');
+      const num3 = step3Btn.querySelector('.step-number');
+
+      // Reset classes & numbers
+      [step1Btn, step2Btn, step3Btn].forEach(b => b.classList.remove('completed', 'active'));
+      dividers.forEach(d => d.classList.remove('completed'));
+      num1.innerHTML = '1';
+      num2.innerHTML = '2';
+      num3.innerHTML = '3';
+
+      let targetStep = 'triage';
+
+      if (s === 'discovery') {
+        // Step 1 completed -> active on Step 2
+        step1Btn.classList.add('completed');
+        num1.innerHTML = '&#10003;';
+        dividers[0]?.classList.add('completed');
+        targetStep = 'discovery';
+      } else if (s === 'prioritisation' || s === 'prioritization' || s === 'story written' || s === 'in sprint' || s === 'done' || s === 'live' || s === 'pilot') {
+        // Step 1 and Step 2 completed -> active on Step 3
+        step1Btn.classList.add('completed');
+        num1.innerHTML = '&#10003;';
+        step2Btn.classList.add('completed');
+        num2.innerHTML = '&#10003;';
+        dividers[0]?.classList.add('completed');
+        dividers[1]?.classList.add('completed');
+        targetStep = 'story';
+      } else {
+        // Submitted, Triage, Rejected, Duplicate, Existing Tool -> Start at Step 1
+        targetStep = 'triage';
+      }
+
+      switchWorkspaceStep(targetStep);
+    }
+
+    function switchWorkspaceStep(stepKey) {
+      document.querySelectorAll('.step-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.step === stepKey);
       });
+      document.querySelectorAll('.workspace-pane').forEach(p => p.style.display = 'none');
+      const pane = document.getElementById(`pane-${stepKey}`);
+      if (pane) pane.style.display = 'block';
+    }
+
+    function selectOutcomeChoice(outcome) {
+      const stageSelect = document.getElementById('detail-stage-select');
+      if (stageSelect) stageSelect.value = outcome;
+
+      document.querySelectorAll('.outcome-choice-btn').forEach(b => b.className = 'outcome-choice-btn');
+      if (outcome === 'Rejected') {
+        document.getElementById('btn-out-reject').classList.add('selected-reject');
+        if (!document.getElementById('triage-decision-notes').value) {
+          document.getElementById('triage-decision-notes').value = 'Required data does not exist or does not meet strategic objectives.';
+        }
+      } else if (outcome === 'Duplicate') {
+        document.getElementById('btn-out-duplicate').classList.add('selected-duplicate');
+        if (!document.getElementById('triage-decision-notes').value) {
+          document.getElementById('triage-decision-notes').value = 'Merged with existing initiative in backlog.';
+        }
+      } else if (outcome === 'Existing Tool') {
+        document.getElementById('btn-out-existing').classList.add('selected-existing');
+        if (!document.getElementById('triage-decision-notes').value) {
+          document.getElementById('triage-decision-notes').value = 'Microsoft Copilot already provides this capability.';
+        }
+      } else if (outcome === 'Discovery') {
+        document.getElementById('btn-out-discovery').classList.add('selected-discovery');
+        if (!document.getElementById('triage-decision-notes').value) {
+          document.getElementById('triage-decision-notes').value = 'Passes strategic, existing solution, and feasibility checks. Proceed to Discovery.';
+        }
+      }
+    }
+
+    async function saveDetailUpdates(returnToList = false) {
+      if (!currentItem) return;
+      const saveBtn = document.getElementById('btn-save-detail');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      const payload = {
+        status: document.getElementById('detail-stage-select').value,
+        triageReason: document.getElementById('triage-decision-notes').value.trim(),
+        triageChecklist: {
+          strategic1: document.getElementById('chk-strategic-1').checked,
+          strategic2: document.getElementById('chk-strategic-2').checked,
+          strategic3: document.getElementById('chk-strategic-3').checked,
+          exist1: document.getElementById('chk-exist-1').checked,
+          exist2: document.getElementById('chk-exist-2').checked,
+          exist3: document.getElementById('chk-exist-3').checked,
+          feas1: document.getElementById('chk-feas-1').checked,
+          feas2: document.getElementById('chk-feas-2').checked,
+          feas3: document.getElementById('chk-feas-3').checked,
+        },
+        discoveryNotes: {
+          outcome: document.getElementById('disc-outcome').value.trim(),
+          users: document.getElementById('disc-users').value.trim(),
+          current: document.getElementById('disc-current').value.trim(),
+          future: document.getElementById('disc-future').value.trim(),
+          data: document.getElementById('disc-data').value.trim(),
+          constraints: document.getElementById('disc-constraints').value.trim(),
+          value: document.getElementById('disc-value').value.trim(),
+        },
+        userStory: {
+          role: document.getElementById('story-role').value.trim(),
+          want: document.getElementById('story-want').value.trim(),
+          soThat: document.getElementById('story-so-that').value.trim(),
+        },
+        acceptanceCriteria: document.getElementById('story-criteria').value.trim(),
+        sizing: document.getElementById('story-sizing').value,
+        priority: document.getElementById('story-priority').value,
+        assignedLead: document.getElementById('story-lead').value.trim(),
+      };
+
+      try {
+        // Save to reliable local cache immediately
+        setLocalDetailCache(currentItem.id, payload);
+        Object.assign(currentItem, payload);
+
+        // Attempt remote DynamoDB patch
+        try {
+          await fetch(`${CONFIG.apiBase}/requests/${currentItem.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              status: payload.status,
+              triageReason: payload.triageReason,
+              triageChecklist: JSON.stringify(payload.triageChecklist),
+              discoveryNotes: JSON.stringify(payload.discoveryNotes),
+              userStory: JSON.stringify(payload.userStory),
+              acceptanceCriteria: payload.acceptanceCriteria,
+              sizing: payload.sizing,
+              priority: payload.priority,
+              assignedLead: payload.assignedLead,
+            }),
+          });
+        } catch (apiErr) {
+          console.warn('Remote sync note:', apiErr);
+        }
+        
+        // Update badge in sidebar & stepper
+        const statusBadge = document.getElementById('detail-status-badge');
+        statusBadge.textContent = payload.status;
+        statusBadge.className = `idea-status-badge ${getStatusBadgeClass(payload.status)}`;
+
+        updateStepperProgress(payload.status);
+        updateCounters();
+        renderAdminTable();
+        showAdminToast('Changes saved successfully');
+
+        if (returnToList) {
+          showListView();
+        }
+      } catch (err) {
+        console.error('Save error:', err);
+        showAdminToast('Failed to save updates — please try again.');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+      }
+    }
+
+    function exportToCSV() {
+      if (adminItems.length === 0) {
+        showAdminToast('No data available to export.');
+        return;
+      }
+
+      const headers = ['ID', 'Title', 'Type', 'Region', 'Status', 'Benefit', 'SubmittedByName', 'SubmittedByEmail', 'SubmittedAt', 'TriageReason', 'Description'];
+      const rows = adminItems.map(i => [
+        `"${(i.id || '').replace(/"/g, '""')}"`,
+        `"${(i.title || '').replace(/"/g, '""')}"`,
+        `"${(i.type || '').replace(/"/g, '""')}"`,
+        `"${(i.region || 'Global').replace(/"/g, '""')}"`,
+        `"${(i.status || 'Submitted').replace(/"/g, '""')}"`,
+        `"${(i.benefit || '').replace(/"/g, '""')}"`,
+        `"${(i.submittedByName || '').replace(/"/g, '""')}"`,
+        `"${(i.submittedByEmail || '').replace(/"/g, '""')}"`,
+        `"${(i.submittedAt || '').replace(/"/g, '""')}"`,
+        `"${(i.triageReason || '').replace(/"/g, '""')}"`,
+        `"${(i.description || '').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `sage-ai-hub-submissions-${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showAdminToast('Exported submissions to CSV');
     }
 
     async function loadAdminData() {
@@ -434,25 +1555,23 @@
     // Check auth on load
     function checkAuthAndInit() {
       const loadingState = document.getElementById('auth-loading-state');
-      const adminContent = document.getElementById('admin-content');
       const adminUnauthorized = document.getElementById('admin-unauthorized');
+      const requestsList = document.getElementById('view-requests-list');
 
       const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
 
-      // Allow access if logged in with sage.com email or test environment
       if (user) {
         if (loadingState) loadingState.style.display = 'none';
         if (adminUnauthorized) adminUnauthorized.style.display = 'none';
-        if (adminContent) adminContent.style.display = 'block';
+        if (requestsList) requestsList.style.display = 'block';
         loadAdminData();
       } else {
-        // Retry shortly in case MSAL is finishing async redirect
         setTimeout(() => {
           const recheckUser = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
           if (recheckUser) {
             if (loadingState) loadingState.style.display = 'none';
             if (adminUnauthorized) adminUnauthorized.style.display = 'none';
-            if (adminContent) adminContent.style.display = 'block';
+            if (requestsList) requestsList.style.display = 'block';
             loadAdminData();
           } else {
             if (loadingState) loadingState.style.display = 'none';
@@ -467,6 +1586,60 @@
 
       const refreshBtn = document.getElementById('btn-refresh-admin');
       if (refreshBtn) refreshBtn.addEventListener('click', loadAdminData);
+
+      const exportBtn = document.getElementById('btn-export-csv');
+      if (exportBtn) exportBtn.addEventListener('click', exportToCSV);
+
+      const backBtn = document.getElementById('btn-back-to-list');
+      if (backBtn) backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        showListView();
+      });
+
+      const searchInput = document.getElementById('admin-search-input');
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          currentAdminSearch = e.target.value;
+          renderAdminTable();
+        });
+      }
+
+      const statusTabs = document.querySelectorAll('#admin-status-tabs .filter-btn');
+      if (statusTabs) {
+        statusTabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            statusTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentAdminStatusFilter = tab.dataset.status;
+            renderAdminTable();
+          });
+        });
+      }
+
+      // Step Buttons
+      document.querySelectorAll('.step-item').forEach(btn => {
+        btn.addEventListener('click', () => switchWorkspaceStep(btn.dataset.step));
+      });
+
+      // Outcome Choice Buttons
+      document.getElementById('btn-out-reject')?.addEventListener('click', () => selectOutcomeChoice('Rejected'));
+      document.getElementById('btn-out-duplicate')?.addEventListener('click', () => selectOutcomeChoice('Duplicate'));
+      document.getElementById('btn-out-existing')?.addEventListener('click', () => selectOutcomeChoice('Existing Tool'));
+      document.getElementById('btn-out-discovery')?.addEventListener('click', () => selectOutcomeChoice('Discovery'));
+
+      // Save Buttons
+      document.getElementById('btn-save-detail')?.addEventListener('click', () => saveDetailUpdates(false));
+      document.getElementById('btn-save-and-back')?.addEventListener('click', () => saveDetailUpdates(true));
+
+      // Complete Discovery & Proceed to Story Button
+      document.getElementById('btn-complete-discovery')?.addEventListener('click', async () => {
+        const stageSelect = document.getElementById('detail-stage-select');
+        if (stageSelect && (stageSelect.value === 'Submitted' || stageSelect.value === 'Triage' || stageSelect.value === 'Discovery')) {
+          stageSelect.value = 'Prioritisation';
+        }
+        await saveDetailUpdates(false);
+        switchWorkspaceStep('story');
+      });
 
       const signInBtn = document.getElementById('btn-admin-signin');
       if (signInBtn) {

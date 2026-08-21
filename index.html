@@ -135,15 +135,15 @@
     </section>
 
     <!-- ==========================================================================
-         ACTIVE PROJECTS & ROADMAP
+         ACTIVE AI PIPELINE & ROADMAP
          ========================================================================== -->
     <section class="section section-dark" id="roadmap-section" style="background-color: #030504; border-top: 1px solid rgba(0, 214, 57, 0.08);">
       <div class="container">
         <div class="section-header">
           <div>
-            <span class="section-tag">Status</span>
+            <span class="section-tag">Delivery Pipeline</span>
             <h2 class="section-title">What we are working on</h2>
-            <p class="section-subtitle">Track the progress of tools and automations currently in development for Customer Service and Operations.</p>
+            <p class="section-subtitle">Track the end-to-end progress of prioritized initiatives through discovery, sprint delivery, testing, and production.</p>
           </div>
         </div>
 
@@ -161,7 +161,7 @@
     <div class="modal-window">
       <div class="modal-header">
         <div>
-          <span class="category-tag tag-automation" style="margin-bottom: 6px; display: inline-block;">CUSTOMER SERVICE & OPS</span>
+          <span class="category-tag tag-automation" style="margin-bottom: 6px; display: inline-block;">CUSTOMER SERVICE &amp; OPS</span>
           <h2 id="modal-title" style="font-size: 1.4rem;">Submit an idea</h2>
         </div>
         <button class="modal-close-btn" id="modal-close-btn" aria-label="Close dialog">&times;</button>
@@ -199,9 +199,9 @@
           <div class="form-step-label"><span class="form-step-num">4</span><label class="form-label">Expected benefit</label></div>
           <div class="pill-group" id="pill-benefit" role="group" aria-label="Select expected benefit">
             <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Save time">Save time</button>
-            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve colleague experience">Improve colleague experience</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve quality">Improve quality</button>
             <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Better insights">Better insights</button>
-            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve customer experience">Improve customer experience</button>
+            <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Improve CX">Improve CX</button>
             <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Increase revenue">Increase revenue</button>
             <button type="button" class="pill-option pill-multi" data-group="benefit" data-value="Other">Other</button>
           </div>
@@ -213,6 +213,54 @@
           <button type="submit" class="btn btn-primary">Submit idea</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       IDEA DETAILS FULL-VIEW MODAL WINDOW
+       ========================================================================== -->
+  <div class="modal-backdrop" id="idea-detail-modal" role="dialog" aria-modal="true" aria-labelledby="modal-detail-title">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+            <span class="category-tag tag-automation" id="modal-detail-category">Idea</span>
+            <span class="idea-status-badge status-submitted" id="modal-detail-status">Submitted</span>
+            <span class="region-badge" id="modal-detail-region">Global</span>
+          </div>
+          <h2 id="modal-detail-title" style="font-size: 1.4rem; color: #FFFFFF; line-height: 1.3;"></h2>
+        </div>
+        <button class="modal-close-btn" id="modal-detail-close-btn" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <div style="padding: 24px 28px;">
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-hero-muted); letter-spacing: 0.06em; margin-bottom: 6px;">Description</h4>
+          <p id="modal-detail-desc" style="color: #FFFFFF; font-size: 0.95rem; line-height: 1.65; white-space: pre-wrap; background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-xs); border: 1px solid rgba(255,255,255,0.05);"></p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+          <div>
+            <h4 style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-hero-muted); letter-spacing: 0.06em; margin-bottom: 4px;">What they want to do</h4>
+            <div id="modal-detail-type" style="color: #FFFFFF; font-size: 0.9rem;"></div>
+          </div>
+          <div>
+            <h4 style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-hero-muted); letter-spacing: 0.06em; margin-bottom: 4px;">Expected Benefit</h4>
+            <div id="modal-detail-benefit" style="color: #FFFFFF; font-size: 0.9rem;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.08);">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="author-avatar" id="modal-detail-avatar">CS</div>
+            <div>
+              <div id="modal-detail-author" style="font-weight: 600; color: #FFFFFF; font-size: 0.88rem;"></div>
+              <div id="modal-detail-date" style="font-size: 0.75rem; color: var(--text-hero-muted);"></div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="modal-detail-done-btn">Close</button>
+        </div>
+      </div>
     </div>
   </div>
 

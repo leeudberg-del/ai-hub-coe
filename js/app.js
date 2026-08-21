@@ -187,18 +187,29 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="idea-status-badge ${getStatusBadgeClass(idea.status)}">${escapeHTML(idea.status)}</span>
       ` : '';
 
+      const isLong = (idea.description || '').length > 130;
+
       return `
-        <article class="idea-card">
+        <article class="idea-card" data-id="${idea.id}">
           <div>
-            <div class="idea-card-header">
+            <div class="idea-card-header idea-detail-trigger" data-id="${idea.id}" title="Click to view details">
               <span class="category-tag tag-${idea.category || 'automation'}">${escapeHTML(idea.categoryLabel || idea.type || 'Idea')}</span>
               <div style="display: flex; gap: 6px; align-items: center;">
                 ${statusBadge}
                 ${idea.region ? `<span class="region-badge">${escapeHTML(idea.region)}</span>` : ''}
               </div>
             </div>
-            <h3 class="idea-title">${escapeHTML(idea.title)}</h3>
-            <p class="idea-desc">${escapeHTML(idea.description)}</p>
+            <h3 class="idea-title idea-detail-trigger" data-id="${idea.id}" title="Click to view details">${escapeHTML(idea.title)}</h3>
+            
+            <div class="idea-desc-wrapper">
+              <p class="idea-desc" id="desc-${idea.id}">${escapeHTML(idea.description)}</p>
+              ${isLong ? `
+                <button class="btn-toggle-desc" data-id="${idea.id}" title="Click to view full details">
+                  <span>Read more &rarr;</span>
+                </button>
+              ` : ''}
+            </div>
+
             ${idea.impact || idea.benefit ? `
             <div class="idea-impact-banner">
               <strong>Impact / Benefit:</strong> ${escapeHTML(idea.benefit || idea.impact)}
@@ -226,13 +237,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Attach upvote triggers
     ideasGrid.querySelectorAll('.upvote-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = btn.dataset.id;
         store.toggleVote(id);
         renderIdeas();
         updateStats();
         showToast("Vote recorded");
       });
+    });
+
+    // "Read more" and card triggers open the full detail modal
+    ideasGrid.querySelectorAll('.btn-toggle-desc, .idea-detail-trigger').forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = trigger.dataset.id;
+        const idea = store.ideas.find(i => i.id === id);
+        if (idea) openIdeaDetailModal(idea);
+      });
+    });
+  }
+
+  // --- IDEA DETAIL FULL MODAL HANDLING ---
+  const detailModal = document.getElementById('idea-detail-modal');
+  const detailCloseBtn = document.getElementById('modal-detail-close-btn');
+  const detailDoneBtn = document.getElementById('modal-detail-done-btn');
+
+  function openIdeaDetailModal(idea) {
+    if (!detailModal) return;
+    
+    document.getElementById('modal-detail-title').textContent = idea.title;
+    document.getElementById('modal-detail-desc').textContent = idea.description || 'No description provided.';
+    document.getElementById('modal-detail-category').textContent = idea.categoryLabel || idea.type || 'Idea';
+    document.getElementById('modal-detail-category').className = `category-tag tag-${idea.category || 'automation'}`;
+    
+    const statusEl = document.getElementById('modal-detail-status');
+    statusEl.textContent = idea.status || 'Submitted';
+    statusEl.className = `idea-status-badge ${getStatusBadgeClass(idea.status)}`;
+
+    document.getElementById('modal-detail-region').textContent = idea.region || 'Global';
+    document.getElementById('modal-detail-type').textContent = idea.type || 'Automation';
+    document.getElementById('modal-detail-benefit').textContent = idea.benefit || idea.impact || 'General productivity';
+    document.getElementById('modal-detail-author').textContent = idea.author || 'Sage Colleague';
+    document.getElementById('modal-detail-avatar').textContent = getInitials(idea.author);
+    document.getElementById('modal-detail-date').textContent = formatDate(idea.submittedAt);
+
+    detailModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeIdeaDetailModal() {
+    if (!detailModal) return;
+    detailModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (detailCloseBtn) detailCloseBtn.addEventListener('click', closeIdeaDetailModal);
+  if (detailDoneBtn) detailDoneBtn.addEventListener('click', closeIdeaDetailModal);
+  if (detailModal) {
+    detailModal.addEventListener('click', (e) => {
+      if (e.target === detailModal) closeIdeaDetailModal();
     });
   }
 
@@ -241,42 +305,57 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!roadmapContainer) return;
 
     const columns = [
-      { key: 'discovery', label: 'Review & Planning', dotClass: 'discovery' },
-      { key: 'active', label: 'In Development', dotClass: 'active' },
-      { key: 'pilot', label: 'Testing with Team', dotClass: 'pilot' },
-      { key: 'live', label: 'In Production', dotClass: 'live' }
+      { key: 'discovery', label: 'Discovery', dotClass: 'discovery', desc: '7 questions & user story' },
+      { key: 'prioritisation', label: 'Prioritisation', dotClass: 'pilot', desc: 'Sized & scheduled for sprint' },
+      { key: 'active', label: 'In Sprint', dotClass: 'active', desc: 'Active engineering & build' },
+      { key: 'live', label: 'Delivered', dotClass: 'live', desc: 'Live in production' }
     ];
 
     roadmapContainer.innerHTML = columns.map(col => {
-      const projs = store.projects.filter(p => p.stage === col.key);
+      const allProjects = store.getProjects();
+      const projs = allProjects.filter(p => p.stage === col.key);
 
       return `
         <div class="roadmap-column">
           <div class="column-header">
             <div class="column-title-group">
               <span class="status-dot ${col.dotClass}"></span>
-              <strong style="font-size: 0.9rem; color: #FFFFFF;">${col.label}</strong>
+              <div>
+                <strong style="font-size: 0.88rem; color: #FFFFFF; display: block;">${col.label}</strong>
+                <span style="font-size: 0.68rem; color: var(--text-hero-muted);">${col.desc}</span>
+              </div>
             </div>
             <span class="column-count">${projs.length}</span>
           </div>
           <div class="project-cards-container">
-            ${projs.length === 0 ? '<p style="color: var(--text-hero-muted); font-size: 0.8rem; font-style: italic; padding: 12px 0;">No items in this stage.</p>' : ''}
+            ${projs.length === 0 ? '<p style="color: var(--text-hero-muted); font-size: 0.78rem; font-style: italic; padding: 16px 0; text-align: center;">No initiatives in this stage.</p>' : ''}
             ${projs.map(p => `
-              <div class="dev-card" onclick="alert('Project: ${escapeHTML(p.title)}\\n\\nLead: ${p.lead}\\nRegion: ${p.region || 'All'}\\nDetails: ${p.tech}\\nTarget: ${p.targetRelease}')">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div class="dev-card" data-id="${p.id}" title="Click to view details">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px;">
                   <h4 class="dev-card-title">${escapeHTML(p.title)}</h4>
-                  <span class="region-badge" style="font-size: 0.65rem; padding: 2px 6px;">${escapeHTML(p.region || 'Global')}</span>
+                  <span class="region-badge" style="font-size: 0.65rem; padding: 2px 6px; flex-shrink: 0;">${escapeHTML(p.region || 'Global')}</span>
                 </div>
-                <p class="dev-card-summary">${escapeHTML(p.summary)}</p>
-                <div class="dev-progress-wrapper">
-                  <div class="progress-info">
-                    <span>PROGRESS</span>
-                    <span>${p.progress}%</span>
+                <p class="dev-card-summary" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; color: var(--text-hero-secondary); margin-bottom: 12px; line-height: 1.45;">${escapeHTML(p.summary)}</p>
+                ${p.stage === 'prioritisation' ? `
+                  <div style="display: flex; gap: 8px; margin-bottom: 14px; align-items: center;">
+                    <span style="background: rgba(211, 173, 247, 0.15); border: 1px solid rgba(211, 173, 247, 0.35); color: #D3ADF7; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-xs);">
+                      Size: ${escapeHTML(p.sizing || 'Not Sized')}
+                    </span>
+                    <span style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); color: #FFFFFF; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-xs);">
+                      ${escapeHTML(p.priority || 'Medium')} Priority
+                    </span>
                   </div>
-                  <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" style="width: ${p.progress}%;"></div>
+                ` : `
+                  <div class="dev-progress-wrapper">
+                    <div class="progress-info">
+                      <span>${escapeHTML(p.progressLabel || 'PROGRESS')}</span>
+                      <span>${p.progress}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                      <div class="progress-bar-fill" style="width: ${p.progress}%;"></div>
+                    </div>
                   </div>
-                </div>
+                `}
                 <div class="dev-meta-row">
                   <span class="lead-badge">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -290,6 +369,27 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
     }).join('');
+
+    // Attach click listeners to open detail modal on roadmap cards
+    roadmapContainer.querySelectorAll('.dev-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.dataset.id;
+        const allProjects = store.getProjects();
+        const proj = allProjects.find(p => p.id === id);
+        if (proj) {
+          const idea = proj.rawItem || store.ideas.find(i => i.id === id) || {
+            title: proj.title,
+            description: proj.summary,
+            type: proj.tech,
+            benefit: proj.impact,
+            author: proj.lead,
+            region: proj.region,
+            status: proj.stage === 'live' ? 'Done' : proj.stage === 'active' ? 'In Sprint' : 'Discovery'
+          };
+          openIdeaDetailModal(idea);
+        }
+      });
+    });
   }
 
   // --- REGION FILTER & SEARCH LISTENERS ---
@@ -378,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-      const claims = user?.idTokenClaims || {};
+      const detectedRegion = typeof getUserRegion === 'function' ? getUserRegion(user) : 'Global';
 
       try {
         const res = await fetch(`${CONFIG.apiBase}/requests`, {
@@ -389,6 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             type: intent,
             description,
             benefit,
+            region: detectedRegion,
             submittedByName: user?.name || 'Anonymous',
             submittedByEmail: user?.username || '',
           }),
@@ -408,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       submitIdeaForm.reset();
       closeModal();
-      showToast("Idea submitted successfully");
+      showToast("Idea submitted! It has entered Step 2: Initial Triage.");
 
       const ideasSec = document.getElementById('ideas-section');
       if (ideasSec) ideasSec.scrollIntoView({ behavior: 'smooth' });
@@ -461,6 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
   store.subscribe(() => {
     updateStats();
     renderIdeas();
+    renderRoadmap();
   });
 
   // Initial Boot

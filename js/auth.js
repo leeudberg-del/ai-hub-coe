@@ -72,6 +72,36 @@ function renderAuthUI() {
   }
 }
 
+// Extract or infer region automatically from AD claims / locale / timezone
+function getUserRegion(user) {
+  if (!user) return 'Global';
+  const claims = user.idTokenClaims || {};
+  
+  // 1. Check direct AD claims (country, c, usageLocation, preferredLanguage)
+  const country = (claims.country || claims.ctry || claims.c || claims.usageLocation || '').toUpperCase();
+  if (['GB', 'UK', 'IE', 'IRL', 'UNITED KINGDOM', 'IRELAND'].includes(country)) return 'UKI';
+  if (['US', 'USA', 'CA', 'CAN', 'UNITED STATES', 'CANADA'].includes(country)) return 'North America';
+  if (['FR', 'FRA', 'FRANCE'].includes(country)) return 'France';
+  if (['ES', 'ESP', 'PT', 'PRT', 'SPAIN', 'PORTUGAL'].includes(country)) return 'Iberia';
+  if (['DE', 'DEU', 'AT', 'AUT', 'CH', 'CHE', 'PL', 'POL', 'GERMANY', 'AUSTRIA', 'SWITZERLAND', 'POLAND'].includes(country)) return 'CEU';
+  if (['ZA', 'ZAF', 'AE', 'ARE', 'SAUDI', 'SOUTH AFRICA', 'UAE', 'AME'].includes(country)) return 'AME';
+
+  // 2. Infer from browser timezone
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+    if (tz.includes('Europe/London') || tz.includes('Europe/Dublin') || tz.includes('Europe/Belfast')) return 'UKI';
+    if (tz.startsWith('America/') || tz.startsWith('US/') || tz.startsWith('Canada/')) return 'North America';
+    if (tz.includes('Europe/Paris')) return 'France';
+    if (tz.includes('Europe/Madrid') || tz.includes('Europe/Lisbon')) return 'Iberia';
+    if (tz.includes('Europe/Berlin') || tz.includes('Europe/Warsaw') || tz.includes('Europe/Vienna') || tz.includes('Europe/Zurich')) return 'CEU';
+    if (tz.includes('Africa/Johannesburg') || tz.includes('Asia/Dubai') || tz.includes('Asia/Riyadh')) return 'AME';
+  } catch (e) {
+    // Ignore error
+  }
+
+  return 'Global';
+}
+
 // Returns the signed-in account for use at form submission
 function getCurrentUser() {
   return currentUser;
