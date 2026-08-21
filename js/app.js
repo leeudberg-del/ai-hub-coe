@@ -570,6 +570,293 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
+  // ==========================================================================
+  // INNOVATIVE CAPSULE HUB NAVIGATOR & GLIDER ANIMATIONS
+  // ==========================================================================
+  const capsuleTabs = document.querySelectorAll('.capsule-tab-btn');
+  const capsuleGlider = document.getElementById('capsule-glider');
+  const hubDeckPanes = document.querySelectorAll('.hub-deck-pane');
+
+  const viewPillBtns = document.querySelectorAll('.view-pill-btn');
+  const viewPillGlider = document.getElementById('view-pill-glider');
+  const ideasViewSection = document.getElementById('ideas-section');
+  const roadmapViewSection = document.getElementById('roadmap-section');
+  const ideasToolbar = document.getElementById('ideas-toolbar');
+
+  function updateCapsuleGlider(targetBtn) {
+    if (!capsuleGlider || !targetBtn) return;
+    const parent = targetBtn.parentElement;
+    const left = targetBtn.offsetLeft;
+    const width = targetBtn.offsetWidth;
+    capsuleGlider.style.left = `${left}px`;
+    capsuleGlider.style.width = `${width}px`;
+  }
+
+  function updateViewPillGlider(targetBtn) {
+    if (!viewPillGlider || !targetBtn) return;
+    const left = targetBtn.offsetLeft;
+    const width = targetBtn.offsetWidth;
+    viewPillGlider.style.left = `${left}px`;
+    viewPillGlider.style.width = `${width}px`;
+  }
+
+  function switchHubDeck(targetDeckId) {
+    let activeBtn = null;
+    capsuleTabs.forEach(tab => {
+      const isActive = tab.dataset.target === targetDeckId;
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      if (isActive) activeBtn = tab;
+    });
+
+    if (activeBtn) updateCapsuleGlider(activeBtn);
+
+    hubDeckPanes.forEach(pane => {
+      if (pane.id === targetDeckId) {
+        pane.style.display = 'block';
+      } else {
+        pane.style.display = 'none';
+      }
+    });
+
+    // Sync navbar link active state
+    const navIdeas = document.getElementById('nav-link-ideas');
+    const navPrompts = document.getElementById('nav-link-prompts');
+    if (navIdeas && navPrompts) {
+      if (targetDeckId === 'deck-ideas') {
+        navLinks.forEach(l => l.classList.remove('active'));
+        navIdeas.classList.add('active');
+        updateNavIndicator(navIdeas, true);
+      } else if (targetDeckId === 'deck-prompts') {
+        navLinks.forEach(l => l.classList.remove('active'));
+        navPrompts.classList.add('active');
+        updateNavIndicator(navPrompts, true);
+      }
+    }
+  }
+
+  capsuleTabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchHubDeck(btn.dataset.target);
+    });
+  });
+
+  // Connect Navbar links directly to Deck Switcher
+  const navLinkIdeas = document.getElementById('nav-link-ideas');
+  const navLinkPrompts = document.getElementById('nav-link-prompts');
+  if (navLinkIdeas) {
+    navLinkIdeas.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchHubDeck('deck-ideas');
+      const el = document.getElementById('hub-deck-nav');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+  if (navLinkPrompts) {
+    navLinkPrompts.addEventListener('click', (e) => {
+      e.preventDefault();
+      switchHubDeck('deck-prompts');
+      const el = document.getElementById('hub-deck-nav');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+
+  // Pipeline Sub-View Switching (Grid View vs Kanban Board with fluid cross-fade)
+  viewPillBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewPillBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateViewPillGlider(btn);
+      const view = btn.dataset.view;
+
+      if (view === 'grid') {
+        if (roadmapViewSection) {
+          roadmapViewSection.classList.remove('active');
+          setTimeout(() => roadmapViewSection.style.display = 'none', 150);
+        }
+        if (ideasViewSection) {
+          ideasViewSection.style.display = 'block';
+          setTimeout(() => ideasViewSection.classList.add('active'), 20);
+        }
+        if (ideasToolbar) ideasToolbar.style.display = 'flex';
+      } else if (view === 'kanban') {
+        if (ideasViewSection) {
+          ideasViewSection.classList.remove('active');
+          setTimeout(() => ideasViewSection.style.display = 'none', 150);
+        }
+        if (roadmapViewSection) {
+          roadmapViewSection.style.display = 'block';
+          setTimeout(() => roadmapViewSection.classList.add('active'), 20);
+        }
+        if (ideasToolbar) ideasToolbar.style.display = 'none';
+        renderRoadmap();
+      }
+    });
+  });
+
+  // Initial Glider Alignment
+  setTimeout(() => {
+    const activeCapsule = document.querySelector('.capsule-tab-btn.active');
+    if (activeCapsule) updateCapsuleGlider(activeCapsule);
+    const activeViewPill = document.querySelector('.view-pill-btn.active');
+    if (activeViewPill) updateViewPillGlider(activeViewPill);
+  }, 100);
+
+  // ==========================================================================
+  // MICROSOFT COPILOT PROMPT STUDIO LOGIC
+  // ==========================================================================
+  const copilotRecipesContainer = document.getElementById('copilot-recipes-list');
+  const promptCatTabs = document.querySelectorAll('.prompt-cat-tab');
+  const terminalActiveTitle = document.getElementById('terminal-active-title');
+  const terminalPromptText = document.getElementById('terminal-prompt-text');
+  const terminalBadge = document.getElementById('terminal-badge');
+  const btnTerminalCopy = document.getElementById('btn-terminal-copy');
+  const btnReplayTypewriter = document.getElementById('btn-replay-typewriter');
+
+  let currentPromptCategory = 'all';
+  let activePrompt = (typeof COPILOT_PROMPTS !== 'undefined' && COPILOT_PROMPTS.length > 0) ? COPILOT_PROMPTS[0] : null;
+  let typewriterInterval = null;
+
+  function renderCopilotRecipes() {
+    if (!copilotRecipesContainer || typeof COPILOT_PROMPTS === 'undefined') return;
+
+    const filtered = COPILOT_PROMPTS.filter(p => {
+      return currentPromptCategory === 'all' || p.category.toLowerCase() === currentPromptCategory.toLowerCase();
+    });
+
+    copilotRecipesContainer.innerHTML = filtered.map(prompt => {
+      const isActive = activePrompt && activePrompt.id === prompt.id;
+      return `
+        <div class="copilot-recipe-card ${isActive ? 'active' : ''}" data-id="${prompt.id}">
+          <div class="copilot-card-header">
+            <div>
+              <h4 class="copilot-card-title">${escapeHTML(prompt.title)}</h4>
+              <span class="copilot-tag-pill">${escapeHTML(prompt.category)}</span>
+            </div>
+            <button class="btn-card-copy-instant" data-id="${prompt.id}" title="1-Click Copy Prompt">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy</span>
+            </button>
+          </div>
+          <p class="copilot-card-desc">${escapeHTML(prompt.shortDesc)}</p>
+          <div class="copilot-card-footer">
+            <span style="display: flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              ${escapeHTML(prompt.tag)}
+            </span>
+            <span style="color: var(--sage-green-brilliant); font-weight: 600;">Load in Terminal &rarr;</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Attach instant copy triggers
+    copilotRecipesContainer.querySelectorAll('.btn-card-copy-instant').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const prompt = COPILOT_PROMPTS.find(p => p.id === id);
+        if (prompt) {
+          try {
+            await navigator.clipboard.writeText(prompt.promptText);
+            showToast(`Copied "${prompt.title}" to clipboard!`);
+            btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Copied!</span>`;
+            setTimeout(() => {
+              btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Copy</span>`;
+            }, 2000);
+          } catch {
+            showToast('Unable to copy — please copy manually');
+          }
+        }
+      });
+    });
+
+    // Attach card click handlers
+    copilotRecipesContainer.querySelectorAll('.copilot-recipe-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.dataset.id;
+        const selected = COPILOT_PROMPTS.find(p => p.id === id);
+        if (selected) {
+          activePrompt = selected;
+          renderCopilotRecipes();
+          runTypewriterPrompt(selected);
+        }
+      });
+    });
+  }
+
+  function runTypewriterPrompt(prompt, animate = true) {
+    if (!terminalPromptText || !prompt) return;
+
+    if (typewriterInterval) clearInterval(typewriterInterval);
+
+    terminalActiveTitle.textContent = prompt.title;
+    terminalBadge.textContent = prompt.category;
+
+    const fullText = prompt.promptText;
+
+    if (!animate) {
+      terminalPromptText.innerHTML = escapeHTML(fullText) + '<span class="typewriter-cursor"></span>';
+      return;
+    }
+
+    terminalPromptText.innerHTML = '<span class="typewriter-cursor"></span>';
+    let charIndex = 0;
+    const speed = 12; // fast typing speed
+
+    typewriterInterval = setInterval(() => {
+      if (charIndex < fullText.length) {
+        charIndex += 4; // chunk forward for snappy fluid typewriter
+        const currentSlice = fullText.slice(0, Math.min(charIndex, fullText.length));
+        terminalPromptText.innerHTML = escapeHTML(currentSlice) + '<span class="typewriter-cursor"></span>';
+      } else {
+        clearInterval(typewriterInterval);
+        typewriterInterval = null;
+        terminalPromptText.innerHTML = escapeHTML(fullText) + '<span class="typewriter-cursor"></span>';
+      }
+    }, speed);
+  }
+
+  // Category Tabs Filter
+  promptCatTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      promptCatTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentPromptCategory = tab.dataset.category;
+      renderCopilotRecipes();
+    });
+  });
+
+  // Copy to Clipboard button
+  if (btnTerminalCopy) {
+    btnTerminalCopy.addEventListener('click', async () => {
+      if (!activePrompt) return;
+      try {
+        await navigator.clipboard.writeText(activePrompt.promptText);
+        showToast('Copied to Clipboard! Ready to paste into Copilot.');
+        btnTerminalCopy.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Copied!
+        `;
+        setTimeout(() => {
+          btnTerminalCopy.innerHTML = `
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy
+          `;
+        }, 2000);
+      } catch (err) {
+        console.error('Clipboard error:', err);
+        showToast('Unable to copy automatically — please select and copy.');
+      }
+    });
+  }
+
+  if (btnReplayTypewriter) {
+    btnReplayTypewriter.addEventListener('click', () => {
+      if (activePrompt) runTypewriterPrompt(activePrompt, true);
+    });
+  }
+
   // Global subscriptions
   store.subscribe(() => {
     updateStats();
@@ -581,6 +868,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStats();
   renderIdeas();
   renderRoadmap();
+  renderCopilotRecipes();
+  if (activePrompt) runTypewriterPrompt(activePrompt, false);
   store.fetchIdeas();
 
   // Initialize Nav indicator position
