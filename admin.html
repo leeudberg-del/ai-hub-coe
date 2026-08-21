@@ -1440,30 +1440,17 @@
       };
 
       try {
-        // Save to reliable local cache immediately
-        setLocalDetailCache(currentItem.id, payload);
-        Object.assign(currentItem, payload);
+        // Send native payload directly to AWS API Gateway & DynamoDB
+        const res = await fetch(`${CONFIG.apiBase}/requests/${currentItem.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
 
-        // Attempt remote DynamoDB patch
-        try {
-          await fetch(`${CONFIG.apiBase}/requests/${currentItem.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              status: payload.status,
-              triageReason: payload.triageReason,
-              triageChecklist: JSON.stringify(payload.triageChecklist),
-              discoveryNotes: JSON.stringify(payload.discoveryNotes),
-              userStory: JSON.stringify(payload.userStory),
-              acceptanceCriteria: payload.acceptanceCriteria,
-              sizing: payload.sizing,
-              priority: payload.priority,
-              assignedLead: payload.assignedLead,
-            }),
-          });
-        } catch (apiErr) {
-          console.warn('Remote sync note:', apiErr);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        
+        Object.assign(currentItem, payload);
+        setLocalDetailCache(currentItem.id, payload);
         
         // Update badge in sidebar & stepper
         const statusBadge = document.getElementById('detail-status-badge');
@@ -1473,7 +1460,7 @@
         updateStepperProgress(payload.status);
         updateCounters();
         renderAdminTable();
-        showAdminToast('Changes saved successfully');
+        showAdminToast('Changes saved successfully to DynamoDB');
 
         if (returnToList) {
           showListView();
