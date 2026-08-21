@@ -324,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    submitIdeaForm.addEventListener('submit', (e) => {
+    submitIdeaForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('form-idea-title').value.trim();
       const description = document.getElementById('form-idea-desc').value.trim();
@@ -336,15 +336,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      store.addIdea({
-        title,
-        category: 'automation',
-        region: 'All Regions',
-        dept: intent || 'Customer Service',
-        description,
-        impact: benefit || 'To be assessed',
-        author: 'Submitted via Hub'
-      });
+      const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+      const claims = user?.idTokenClaims || {};
+
+      try {
+        const res = await fetch(`${CONFIG.apiBase}/requests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title,
+            type: intent,
+            description,
+            benefit,
+            submittedByName: user?.name || 'Anonymous',
+            submittedByEmail: user?.username || '',
+          }),
+        });
+        if (!res.ok) throw new Error('API error');
+      } catch (err) {
+        showToast("Submission failed — please try again.");
+        return;
+      }
 
       // Reset pills
       document.querySelectorAll('.pill-option').forEach(p => p.classList.remove('selected'));
@@ -352,8 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       submitIdeaForm.reset();
       closeModal();
-      renderIdeas();
-      updateStats();
       showToast("Idea submitted successfully");
 
       const ideasSec = document.getElementById('ideas-section');
