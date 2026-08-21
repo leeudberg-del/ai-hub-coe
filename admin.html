@@ -1345,12 +1345,23 @@
         num1.innerHTML = '&#10003;';
         dividers[0]?.classList.add('completed');
         targetStep = 'discovery';
-      } else if (s === 'prioritisation' || s === 'prioritization' || s === 'story written' || s === 'in sprint' || s === 'done' || s === 'live' || s === 'pilot') {
+      } else if (s === 'prioritisation' || s === 'prioritization') {
         // Step 1 and Step 2 completed -> active on Step 3
         step1Btn.classList.add('completed');
         num1.innerHTML = '&#10003;';
         step2Btn.classList.add('completed');
         num2.innerHTML = '&#10003;';
+        dividers[0]?.classList.add('completed');
+        dividers[1]?.classList.add('completed');
+        targetStep = 'story';
+      } else if (s === 'in sprint' || s === 'done' || s === 'live' || s === 'pilot') {
+        // Step 1, Step 2, and Step 3 all completed -> all 3 tick!
+        step1Btn.classList.add('completed');
+        num1.innerHTML = '&#10003;';
+        step2Btn.classList.add('completed');
+        num2.innerHTML = '&#10003;';
+        step3Btn.classList.add('completed');
+        num3.innerHTML = '&#10003;';
         dividers[0]?.classList.add('completed');
         dividers[1]?.classList.add('completed');
         targetStep = 'story';
