@@ -568,6 +568,7 @@ button, input, select, textarea, .btn, .nav-link, .category-tag, .filter-btn, .v
   transition: var(--transition-smooth);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .idea-card::before {

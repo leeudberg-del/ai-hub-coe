@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
     }).join('');
 
-    // Attach upvote triggers
+    // Attach upvote triggers (stops propagation so modal does not trigger)
     ideasGrid.querySelectorAll('.upvote-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -247,11 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // "Read more" and card triggers open the full detail modal
-    ideasGrid.querySelectorAll('.btn-toggle-desc, .idea-detail-trigger').forEach(trigger => {
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = trigger.dataset.id;
+    // Clicking anywhere on an idea card opens the full detail modal
+    ideasGrid.querySelectorAll('.idea-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        // Prevent opening if the user clicked the upvote button
+        if (e.target.closest('.upvote-btn')) return;
+        const id = card.dataset.id;
         const idea = store.ideas.find(i => i.id === id);
         if (idea) openIdeaDetailModal(idea);
       });
