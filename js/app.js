@@ -263,11 +263,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const detailCloseBtn = document.getElementById('modal-detail-close-btn');
   const detailDoneBtn = document.getElementById('modal-detail-done-btn');
 
+  function formatDescriptionParagraphs(text) {
+    if (!text) return '<p style="margin: 0; color: var(--text-hero-muted);">No description provided.</p>';
+    const paragraphs = text.split(/\n+/).map(p => p.trim()).filter(Boolean);
+    return paragraphs.map(p => {
+      if (p.startsWith('-') || p.startsWith('•')) {
+        return `<div style="padding-left: 14px; margin-bottom: 8px; position: relative;"><span style="position: absolute; left: 0; color: var(--sage-green-brilliant);">&bull;</span>${escapeHTML(p.replace(/^[-•]\s*/, ''))}</div>`;
+      }
+      return `<p style="margin-bottom: 14px; line-height: 1.65; color: #E2EDE6;">${escapeHTML(p)}</p>`;
+    }).join('');
+  }
+
   function openIdeaDetailModal(idea) {
     if (!detailModal) return;
     
     document.getElementById('modal-detail-title').textContent = idea.title;
-    document.getElementById('modal-detail-desc').textContent = idea.description || 'No description provided.';
+    document.getElementById('modal-detail-desc').innerHTML = formatDescriptionParagraphs(idea.description);
     document.getElementById('modal-detail-category').textContent = idea.categoryLabel || idea.type || 'Idea';
     document.getElementById('modal-detail-category').className = `category-tag tag-${idea.category || 'automation'}`;
     
