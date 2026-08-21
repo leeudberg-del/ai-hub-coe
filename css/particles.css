@@ -55,13 +55,20 @@
 /* Interactive cursor glow indicator */
 .cursor-aura {
   position: fixed;
-  width: 400px;
-  height: 400px;
+  width: 550px;
+  height: 550px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 214, 57, 0.08) 0%, rgba(0, 214, 57, 0) 70%);
+  background: radial-gradient(
+    circle, 
+    rgba(0, 214, 57, 0.32) 0%, 
+    rgba(0, 214, 57, 0.18) 25%, 
+    rgba(68, 237, 144, 0.08) 50%, 
+    rgba(0, 214, 57, 0) 75%
+  );
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
   mix-blend-mode: screen;
+  filter: blur(15px);
 }

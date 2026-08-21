@@ -165,13 +165,16 @@ class SageParticleEngine {
           p.vx += (dx / dist) * force * 0.6;
           p.vy += (dy / dist) * force * 0.6;
 
-          // Connect cursor to nearby particles
+          // Connect cursor to nearby particles with high luminosity
           this.ctx.beginPath();
           this.ctx.moveTo(p.x, p.y);
           this.ctx.lineTo(this.mouse.x, this.mouse.y);
-          this.ctx.strokeStyle = `rgba(0, 214, 57, ${force * 0.45})`;
-          this.ctx.lineWidth = 1.2;
+          this.ctx.strokeStyle = `rgba(0, 214, 57, ${force * 0.75})`;
+          this.ctx.lineWidth = 1.6;
+          this.ctx.shadowColor = '#00D639';
+          this.ctx.shadowBlur = 8;
           this.ctx.stroke();
+          this.ctx.shadowBlur = 0;
         }
       }
 
@@ -183,8 +186,8 @@ class SageParticleEngine {
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, nodeSize, 0, Math.PI * 2);
       this.ctx.fillStyle = p.color;
-      this.ctx.shadowColor = 'rgba(0, 214, 57, 0.8)';
-      this.ctx.shadowBlur = 10;
+      this.ctx.shadowColor = 'rgba(0, 214, 57, 0.95)';
+      this.ctx.shadowBlur = 14;
       this.ctx.fill();
       this.ctx.shadowBlur = 0; // reset
 
